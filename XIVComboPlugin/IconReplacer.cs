@@ -321,6 +321,8 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.NinjaArmorCrushCombo))
                 if (actionID == NIN.ArmorCrush)
                 {
+                    if (SearchBuffArray(NIN.BuffRaijuReady))
+                        return NIN.ForkedRaiju;
                     if (lastMove == NIN.SpinningEdge && level >= 4)
                         return NIN.GustSlash;
                     if (lastMove == NIN.GustSlash && level >= 54)
@@ -332,6 +334,8 @@ namespace XIVComboPlugin
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.NinjaAeolianEdgeCombo))
                 if (actionID == NIN.AeolianEdge)
                 {
+                    if (SearchBuffArray(NIN.BuffRaijuReady))
+                        return NIN.FleetingRaiju;
                     if (lastMove == NIN.SpinningEdge && level >= 4)
                         return NIN.GustSlash;
                     if (lastMove == NIN.GustSlash && level >= 26)
