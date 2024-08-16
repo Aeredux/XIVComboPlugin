@@ -1,9 +1,9 @@
 {
-  "Name": "XIV Combo",
-  "Author": "Attick",
+  "Name": "XIV Combo Tweaks",
+  "Author": "Skooz",
   "Description": "This plugin condenses combos and mutually exclusive abilities onto a single button. /pcombo to open menu",
-  "RepoUrl": "https://github.com/attickdoor/XivComboPlugin",
-  "Punchline": "PvP, but in PvE!",
+  "RepoUrl": "https://github.com/Skooz/XIVComboPlugin/tree/tweaks",
+  "Punchline": "Forked version of Attick's XIV Combo",
   "Tags": [ "Combo" ],
   "AcceptsFeedback": true
 }
