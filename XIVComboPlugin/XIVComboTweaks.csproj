@@ -21,7 +21,7 @@
   <PropertyGroup>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AssemblyName>XIVCombo</AssemblyName>
+    <AssemblyName>XIVComboTweaks</AssemblyName>
   </PropertyGroup>
   <PropertyGroup>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
