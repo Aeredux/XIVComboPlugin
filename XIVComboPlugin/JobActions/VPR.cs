@@ -19,10 +19,10 @@ namespace XIVComboPlugin.JobActions
             JaggedMaw = 34618,
             BloodiedMaw = 34619,
 
-            Dreadwinder = 34620,
+            Vicewinder = 34620,
             HuntersCoil = 34621,
             SwiftskinsCoil = 34622,
-            PitOfDread = 34623,
+            Vicepit = 34623,
             HuntersDen = 34624,
             SwiftskinsDen = 34625,
 

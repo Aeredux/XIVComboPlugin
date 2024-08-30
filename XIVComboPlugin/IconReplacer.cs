@@ -9,6 +9,7 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.Gauge;
 using SerpentCombo = Dalamud.Game.ClientState.JobGauge.Enums.SerpentCombo;
+using DreadCombo = Dalamud.Game.ClientState.JobGauge.Enums.DreadCombo;
 
 namespace XIVComboPlugin
 {
@@ -832,8 +833,9 @@ namespace XIVComboPlugin
                     return PCT.StarPrism;
                 return PCT.StarryMotif;
             }
-            
+
             //VIPER
+            
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.ViperDeathLashCombo))
             {
                 if (actionID == VPR.SteelFangs || actionID == VPR.DreadFangs)
@@ -910,6 +912,30 @@ namespace XIVComboPlugin
                         if ((int)JobGauges.Get<VPRGauge>().SerpentCombo == 8)
                             return iconHook.Original(self, VPR.Twinfang);
                         break;
+                }
+            }
+
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.ViperViceCombo))
+            {
+                switch (actionID)
+                {
+                    case VPR.SwiftskinsCoil:
+                    case VPR.HuntersCoil:
+                        {
+                            var gauge = JobGauges.Get<VPRGauge>();
+                            if (gauge.SerpentCombo != SerpentCombo.NONE || gauge.DreadCombo != 0)
+                                return iconHook.Original(self, actionID);
+                            return VPR.Vicewinder;
+                        }
+
+                    case VPR.SwiftskinsDen:
+                    case VPR.HuntersDen:
+                        {
+                            var gauge = JobGauges.Get<VPRGauge>();
+                            if (gauge.SerpentCombo != SerpentCombo.NONE || gauge.DreadCombo != 0)
+                                return iconHook.Original(self, actionID);
+                            return VPR.Vicepit;
+                        }
                 }
             }
 

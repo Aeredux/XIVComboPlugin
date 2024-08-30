@@ -200,6 +200,9 @@ namespace XIVComboPlugin
         PictoHolyWhiteCombo = 1L << 5,
 
         //Viper
+        [CustomComboInfo("Vicewinder/Vicepit on Hunter & Swiftskin", "Replace Hunter & Swiftskin with respective starters when appropriate", 41)]
+        ViperViceCombo = 1L << 29,
+
         [CustomComboInfo("Death Rattle/Last Lash Finisher", "Replace moves with Death Rattle or Last Lash when available", 41)]
         ViperDeathLashCombo = 1L << 46,
 
