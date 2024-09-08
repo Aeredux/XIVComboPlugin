@@ -7,7 +7,6 @@
             EnkindlePhoenix = 16516,
             EnkindleBahamut = 7429,
             DWT = 3581,
-            SummonBahamut = 7427,
             FBTLow = 16513,
             FBTHigh = 16549,
             Ruin1 = 163,
@@ -20,7 +19,10 @@
             Painflare = 3578,
             EnergySyphon = 16510,
             LuxSolaris = 36997,
-            SummonSolarBahamut = 36992;
+            Aethercharge = 25800,
+            SummonBahamut = 7427,
+            SummonSolarBahamut = 36992,
+            SummonPhoenix = 25831;
         public static class Buffs
         {
             public const ushort

@@ -502,12 +502,19 @@ namespace XIVComboPlugin
             
             //Change Summon Solar Bahamut into Lux Solaris
             if(Configuration.ComboPresets.HasFlag(CustomComboPreset.SummonerSolarBahamutLuxSolaris))
-                if (actionID == SMN.SummonBahamut)
+                switch (actionID)
                 {
-                    if(SearchBuffArray(SMN.Buffs.RefulgentLux))
-                        return SMN.LuxSolaris;
-                    return iconHook.Original(self, actionID);
+                    case SMN.Aethercharge:
+                    case SMN.SummonBahamut:
+                    case SMN.SummonPhoenix:
+                    case SMN.SummonSolarBahamut:
+                    {
+                        if (SearchBuffArray(SMN.Buffs.RefulgentLux))
+                            return SMN.LuxSolaris;
+                        return iconHook.Original(self, actionID);
+                    }
                 }
+           
                     
 
             // SCHOLAR
@@ -775,7 +782,7 @@ namespace XIVComboPlugin
                 }
             }
             
-             //Pictomancer
+            // PICTOMANCER
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.PictoSubtractivePallet))
             {
                 if (actionID == PCT.Fire1)
