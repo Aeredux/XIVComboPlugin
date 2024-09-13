@@ -126,9 +126,9 @@ namespace XIVComboPlugin
                 flagsSelected[i] = Configuration.ComboPresets.HasFlag(orderedByClassJob[i]);
             }
 
-            ImGui.SetNextWindowSize(new Vector2(750, (30 + ImGui.GetStyle().ItemSpacing.Y) * 17));
+            ImGui.SetWindowSize(new Vector2(750, (30 + ImGui.GetStyle().ItemSpacing.Y) * 17));
 
-            ImGui.Begin("Custom Combo Setup", ref isImguiComboSetupOpen, ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar);
+            ImGui.Begin("XIVCombo", ref isImguiComboSetupOpen, ImGuiWindowFlags.NoScrollbar);
 
             ImGui.Text("This window allows you to enable and disable custom combos to your liking.");
             ImGui.Separator();
