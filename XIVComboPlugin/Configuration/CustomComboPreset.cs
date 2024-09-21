@@ -104,6 +104,9 @@ namespace XIVComboPlugin
         [CustomComboInfo("Enochian Stance Switcher", "Change Fire 4, Blizzard 4, Flare, and Freeze to the appropriate element depending on stance", 25)]
         BlackEnochianFeature = 1L << 25,
 
+        [CustomComboInfo("Flare Star on Ice", "Change Blizzard 4 and Freeze to Flare Star when in Astral Fire", 25)]
+        BlackFlareIceCombo = 1L << 41,
+
         // ASTROLOGIAN
         [CustomComboInfo("Astral/Umbral Draw on Minor Arcana", "Draw replaces Minor Arcana when no Arcana is available", 33)]
         AstrologianCardsOnDrawFeature = 1L << 27,

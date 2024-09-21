@@ -400,7 +400,7 @@ namespace XIVComboPlugin
                         return GNB.DemonSlaughter;
                     return GNB.DemonSlice;
                 }
-            
+
             // Replace Fated Brand with Continuation
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.GunbreakerFatedCircleCont))
                 if (actionID == GNB.FatedCircle)
@@ -447,6 +447,17 @@ namespace XIVComboPlugin
 
             // BLACK MAGE
 
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.BlackFlareIceCombo))
+            {
+                if (actionID == BLM.Blizzard4 || actionID == BLM.Freeze)
+                {
+                    var gauge = JobGauges.Get<BLMGauge>();
+                    if (gauge.InAstralFire && level >= 100)
+                        return BLM.FlareStar;
+                    return iconHook.Original(self, actionID);
+                }
+            }
+
             // B4 and F4 change to each other depending on stance, as do Flare and Freeze.
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.BlackEnochianFeature))
             {
@@ -455,6 +466,8 @@ namespace XIVComboPlugin
                     var gauge = JobGauges.Get<BLMGauge>();
                     if (gauge.InUmbralIce && level >= 58)
                         return BLM.Blizzard4;
+                    if (gauge.AstralSoulStacks == 6)
+                        return BLM.FlareStar;
                     if (level >= 60)
                         return BLM.Fire4;
                 }
@@ -462,11 +475,14 @@ namespace XIVComboPlugin
                 if (actionID == BLM.Flare || actionID == BLM.Freeze)
                 {
                     var gauge = JobGauges.Get<BLMGauge>();
+                    if (gauge.AstralSoulStacks == 6)
+                        return BLM.FlareStar;
                     if (gauge.InAstralFire && level >= 50)
                         return BLM.Flare;
                     return BLM.Freeze;
                 }
             }
+
 
             // ASTROLOGIAN
             // Change Play 1/2/3 to Astral/Umbral Draw if that Play action doesn't have a card ready to be played.

@@ -10,7 +10,8 @@
             LeyLines = 3573,
             BTL = 7419,
             Flare = 162,
-            Freeze = 159;
+            Freeze = 159,
+            FlareStar = 36989;
 
         public const ushort
             BuffLeyLines = 737;
