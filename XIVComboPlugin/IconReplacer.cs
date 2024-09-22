@@ -518,20 +518,14 @@ namespace XIVComboPlugin
             
             //Change Summon Solar Bahamut into Lux Solaris
             if(Configuration.ComboPresets.HasFlag(CustomComboPreset.SummonerSolarBahamutLuxSolaris))
-                switch (actionID)
+                if (actionID == SMN.Aethercharge)
                 {
-                    case SMN.Aethercharge:
-                    case SMN.SummonBahamut:
-                    case SMN.SummonPhoenix:
-                    case SMN.SummonSolarBahamut:
-                    {
-                        if (SearchBuffArray(SMN.Buffs.RefulgentLux))
-                            return SMN.LuxSolaris;
-                        return iconHook.Original(self, actionID);
-                    }
+                    if (SearchBuffArray(SMN.Buffs.RefulgentLux))
+                        return SMN.LuxSolaris;
+                    return iconHook.Original(self, actionID);
                 }
-           
-                    
+
+
 
             // SCHOLAR
             // Change Energy Drain into Aetherflow when you have no more Aetherflow stacks.
