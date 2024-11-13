@@ -28,6 +28,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+    <BaseOutputPath>C:\GitHub\Zookins</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
