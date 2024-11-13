@@ -112,7 +112,6 @@ namespace XIVComboPlugin
         AstrologianCardsOnDrawFeature = 1L << 27,
 
         // SUMMONER
-
         [CustomComboInfo("ED Fester/Necrotize", "Change Fester/Necrotize into Energy Drain when out of Aetherflow stacks", 27)]
         SummonerEDFesterCombo = 1L << 39,
 
