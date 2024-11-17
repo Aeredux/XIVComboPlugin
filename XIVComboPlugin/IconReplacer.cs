@@ -587,16 +587,6 @@ namespace XIVComboPlugin
                 }
             }
 
-            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.DancerDevilmentCombo))
-            {
-                if (actionID == DNC.Devilment)
-                {
-                    if (SearchBuffArray(DNC.BuffStarfallDanceReady))
-                        return DNC.StarfallDance;
-                    return DNC.Devilment;
-                }
-            }
-
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.DancerLastDanceCombo))
             {
                 if (actionID == DNC.StandardStep)

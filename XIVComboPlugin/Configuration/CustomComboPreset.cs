@@ -135,9 +135,6 @@ namespace XIVComboPlugin
         [CustomComboInfo("Fan Dance IV", "Change Flourish into Fan Dance IV while flourishing", 38)]
         DancerFanDance4Combo = 1L << 60,
 
-        [CustomComboInfo("Devilment into Starfall", "Change Devilment into Starfall Dance while under the effect of Flourishing Starfall", 38)]
-        DancerDevilmentCombo = 1L << 61,
-
         [CustomComboInfo("Standard Last Dance", "Change Standard Step into Last Dance when ready", 38)]
         DancerLastDanceCombo = 1L << 21,
 
