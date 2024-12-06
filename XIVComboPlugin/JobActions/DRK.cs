@@ -7,6 +7,8 @@
             HardSlash = 3617,
             SyphonStrike = 3623,
             StalwartSoul = 16468,
-            Unleash = 3621;
+            Unleash = 3621,
+            Bloodspiller = 7392,
+            Quietus = 7391;
     }
 }

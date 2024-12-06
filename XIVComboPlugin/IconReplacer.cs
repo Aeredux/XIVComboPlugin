@@ -161,6 +161,20 @@ namespace XIVComboPlugin
 
             // DARK KNIGHT
 
+            // Replace Souleater with Bloodspiller if gauge, same for Stalwart Soul/Quietus
+            if (Configuration.ComboPresets.HasFlag(CustomComboPreset.DarkBloodGaugeCombo))
+            {
+                var gauge = JobGauges.Get<DRKGauge>();
+                if (gauge.Blood >= 50)
+                {
+                    if (actionID == DRK.Souleater)
+                        return DRK.Bloodspiller;
+                    if (actionID == DRK.StalwartSoul)
+                        return DRK.Quietus;
+                }
+                
+            }
+
             // Replace Souleater with Souleater combo chain
             if (Configuration.ComboPresets.HasFlag(CustomComboPreset.DarkSouleaterCombo))
                 if (actionID == DRK.Souleater)

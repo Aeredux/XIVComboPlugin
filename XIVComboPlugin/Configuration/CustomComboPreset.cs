@@ -25,6 +25,9 @@ namespace XIVComboPlugin
         [CustomComboInfo("Stalwart Soul Combo", "Replace Stalwart Soul with its combo chain", 32)]
         DarkStalwartSoulCombo = 1L << 4,
 
+        [CustomComboInfo("Blood Gauge Combo", "Replace GCD with Blood Gauge variant", 32)]
+        DarkBloodGaugeCombo = 1L << 61,
+
         // PALADIN
         [CustomComboInfo("Royal Authority Combo", "Replace Royal Authority/Rage of Halone with its combo chain", 19)]
         PaladinRoyalAuthorityCombo = 1L << 6,
