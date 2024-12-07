@@ -53,8 +53,8 @@ namespace XIVComboPlugin
             PluginInterface.UiBuilder.OpenMainUi += () => isImguiComboSetupOpen = true;
             PluginInterface.UiBuilder.Draw += UiBuilder_OnBuildUi;
 
-            var values = Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>();
-            orderedByClassJob = values.Where(x => x != CustomComboPreset.None && x.GetAttribute<CustomComboInfoAttribute>() != null).OrderBy(x => x.GetAttribute<CustomComboInfoAttribute>().ClassJob).ToArray();
+            orderedByClassJob = Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>().ToArray();
+            Array.Sort(orderedByClassJob, (x, y) => x.GetAttribute<CustomComboInfoAttribute>().ClassJob.CompareTo(y.GetAttribute<CustomComboInfoAttribute>().ClassJob));
             UpdateConfig();
         }
 
@@ -123,7 +123,7 @@ namespace XIVComboPlugin
             var flagsSelected = new bool[orderedByClassJob.Length];
             for (var i = 0; i < orderedByClassJob.Length; i++)
             {
-                flagsSelected[i] = Configuration.ComboPresets.HasFlag(orderedByClassJob[i]);
+                flagsSelected[i] = Configuration.ComboPresets[i];
             }
 
             ImGui.SetWindowSize(new Vector2(750, (30 + ImGui.GetStyle().ItemSpacing.Y) * 17));
@@ -170,14 +170,7 @@ namespace XIVComboPlugin
 
             for (var i = 0; i < orderedByClassJob.Length; i++)
             {
-                if (flagsSelected[i])
-                {
-                    Configuration.ComboPresets |= orderedByClassJob[i];
-                }
-                else
-                {
-                    Configuration.ComboPresets &= ~orderedByClassJob[i];
-                }
+                Configuration.ComboPresets[i] = flagsSelected[i];
             }
 
             ImGui.PopStyleVar();
@@ -218,12 +211,9 @@ namespace XIVComboPlugin
             {
                 case "setall":
                     {
-                        foreach (var value in Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>())
+                        foreach (int value in Enum.GetValues(typeof(CustomComboPreset)))
                         {
-                            if (value == CustomComboPreset.None)
-                                continue;
-
-                            this.Configuration.ComboPresets |= value;
+                            this.Configuration.ComboPresets[value] = true;
                         }
 
                         ChatGui.Print("all SET");
@@ -231,9 +221,9 @@ namespace XIVComboPlugin
                     break;
                 case "unsetall":
                     {
-                        foreach (var value in Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>())
+                        foreach (int value in Enum.GetValues(typeof(CustomComboPreset)))
                         {
-                            this.Configuration.ComboPresets &= value;
+                            this.Configuration.ComboPresets[value] = false;
                         }
 
                         ChatGui.Print("all UNSET");
@@ -241,53 +231,50 @@ namespace XIVComboPlugin
                     break;
                 case "set":
                     {
-                        foreach (var value in Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>())
+                        foreach (int value in Enum.GetValues(typeof(CustomComboPreset)))
                         {
                             if (value.ToString().ToLower() != argumentsParts[1].ToLower())
                                 continue;
 
-                            this.Configuration.ComboPresets |= value;
+                            this.Configuration.ComboPresets[value] = true;
                         }
                     }
                     break;
                 case "toggle":
                     {
-                        foreach (var value in Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>())
+                        foreach (int value in Enum.GetValues(typeof(CustomComboPreset)))
                         {
-                            if (value.ToString().ToLower() != argumentsParts[1].ToLower())
-                                continue;
-
-                            this.Configuration.ComboPresets ^= value;
+                            this.Configuration.ComboPresets[value] = !this.Configuration.ComboPresets[value];
                         }
                     }
                     break;
 
                 case "unset":
                     {
-                        foreach (var value in Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>())
+                        foreach (int value in Enum.GetValues(typeof(CustomComboPreset)))
                         {
                             if (value.ToString().ToLower() != argumentsParts[1].ToLower())
                                 continue;
 
-                            this.Configuration.ComboPresets &= ~value;
+                            this.Configuration.ComboPresets[value] = false;
                         }
                     }
                     break;
 
-                case "list":
-                    {
-                        foreach (var value in Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>().Where(x => x != CustomComboPreset.None))
-                        {
-                            if (argumentsParts[1].ToLower() == "set")
-                            {
-                                if (this.Configuration.ComboPresets.HasFlag(value))
-                                    ChatGui.Print(value.ToString());
-                            }
-                            else if (argumentsParts[1].ToLower() == "all")
-                                ChatGui.Print(value.ToString());
-                        }
-                    }
-                    break;
+                //case "list":
+                //    {
+                //        foreach (var value in Enum.GetValues(typeof(CustomComboPreset)).Cast<CustomComboPreset>().Where(x => x != CustomComboPreset.None))
+                //        {
+                //            if (argumentsParts[1].ToLower() == "set")
+                //            {
+                //                if (this.Configuration.ComboPresets.HasFlag(value))
+                //                    ChatGui.Print(value.ToString());
+                //            }
+                //            else if (argumentsParts[1].ToLower() == "all")
+                //                ChatGui.Print(value.ToString());
+                //        }
+                //    }
+                //    break;
 
                 default:
                     this.isImguiComboSetupOpen = true;
