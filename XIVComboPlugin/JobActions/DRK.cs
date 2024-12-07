@@ -17,6 +17,7 @@
             DarkMissionary = 16471,
             ShadowWall = 3636,
             BloodWeapon = 3625,
+            Delirium = 7390,
             CarveAndSpit = 3643,
             AbyssalDrain = 3641;
     }

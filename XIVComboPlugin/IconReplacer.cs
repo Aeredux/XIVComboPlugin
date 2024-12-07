@@ -10,6 +10,7 @@ using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.Gauge;
 using SerpentCombo = Dalamud.Game.ClientState.JobGauge.Enums.SerpentCombo;
 using DreadCombo = Dalamud.Game.ClientState.JobGauge.Enums.DreadCombo;
+using XIVComboTweaks.Configuration.Helpers;
 
 namespace XIVComboPlugin
 {
@@ -201,20 +202,15 @@ namespace XIVComboPlugin
                 }
             }
 
-            // Replace carve and spit/abyssal drain with blood weapon when it is available
+            // Replace carve and spit/abyssal drain with blood weapon/delirium when it is available
             if (hasFlag(CustomComboPreset.DarkBloodWeapon))
             {
-                if (actionID == DRK.CarveAndSpit)
+                if (actionID == DRK.CarveAndSpit || actionID == DRK.AbyssalDrain)
                 {
                     if (actionManager->IsActionOffCooldown(ActionType.Action, DRK.BloodWeapon))
                     {
-                        return DRK.BloodWeapon;
-                    }
-                }
-                if (actionID == DRK.AbyssalDrain)
-                {
-                    if (actionManager->IsActionOffCooldown(ActionType.Action, DRK.BloodWeapon))
-                    {
+                        if (level >= 68)
+                            return DRK.Delirium;
                         return DRK.BloodWeapon;
                     }
                 }
@@ -721,69 +717,33 @@ namespace XIVComboPlugin
             //}
 
             // combines all 3 forms into one action
-
+            /*
+             * if perfect balance:
+             *      if solar nadi opened:
+             *          use q or q+ (determined by stacks)
+             *      else solar nadi not opened:
+             *          use next in 3 combo (determined by previous move, or could use beast chakra)
+             * if no perfect balance: 
+             *      if formless fist:
+             *          use q or q+ (determined by stacks)
+             *      if not formless fist:
+             *          use next in 3 combo (determined by form)
+             */
+            //perfect balance makes it so that you can't get form
+            //so when u exit you have no form, unless you get formless fist from masterful blitz
+            MNKHelper mnkHelper = MNKHelper.Get(JobGauges.Get<MNKGauge>(), clientState.LocalPlayer.StatusList, level, lastMove);
             if (hasFlag(CustomComboPreset.MonkFuryCombo2))
-                //perfect balance makes it so that you can't get form
-                //so when u exit you have no form, unless you get formless fist from masterful blitz
+
             {
                 if (actionID == MNK.Demolish)
-                {
-                    if (SearchBuffArray(MNK.PerfectBalanceBuff))
-                    {
-                        if (JobGauges.Get<MNKGauge>().Nadi == Nadi.SOLAR)
-                        {
-                            if (JobGauges.Get<MNKGauge>().OpoOpoFury < 1 && level >= 50)
-                                return MNK.DragonKick;
-                            return MNK.Bootshine;
-                        }
-                    } else
-                    {
-                        var beastChakra = JobGauges.Get<MNKGauge>().BeastChakra;
-                        if (beastChakra[0] != BeastChakra.NONE && beastChakra[1] != BeastChakra.NONE && beastChakra[2] != BeastChakra.NONE)
-                        {
-                            if (JobGauges.Get<MNKGauge>().OpoOpoFury < 1 && level >= 50)
-                                return MNK.DragonKick;
-                            return MNK.Bootshine;
-                        }
-                    }
-                    if (SearchBuffArray(MNK.RaptorForm) || (lastMove == MNK.DragonKick || lastMove == MNK.Bootshine || lastMove == MNK.LeapingOpo))
-                    {
-                        if (JobGauges.Get<MNKGauge>().RaptorFury < 1 && level >= 18)
-                            return MNK.TwinSnakes;
-                        return MNK.TrueStrike;
-                    }
-                    else if (SearchBuffArray(MNK.CoeurlForm) || (lastMove == MNK.TwinSnakes || lastMove == MNK.TrueStrike || lastMove == MNK.RisingRaptor))
-                    {
-                        if (JobGauges.Get<MNKGauge>().CoeurlFury < 1 && level >= 30)
-                            return MNK.Demolish;
-                        return MNK.SnapPunch;
-                    } else
-                    {
-                        if (JobGauges.Get<MNKGauge>().OpoOpoFury < 1 && level >= 50)
-                            return MNK.DragonKick;
-                        return MNK.Bootshine;
-                    }
-                }
+                    return mnkHelper.SingleTarget();
             }
 
             // same as above but for Aoe
             if (hasFlag(CustomComboPreset.MonkFuryCombo3))
             {
                 if (actionID == MNK.Rockbreaker)
-                {
-                    if (SearchBuffArray(MNK.RaptorForm))
-                    {
-                        return MNK.FourPointFury;
-                    }
-                    else if (SearchBuffArray(MNK.CoeurlForm))
-                    {
-                        return MNK.Rockbreaker;
-                    }
-                    else
-                    {
-                        return MNK.ArmOfTheDestroyer;
-                    }
-                }
+                    return mnkHelper.MultiTarget();
             }
 
             if (hasFlag(CustomComboPreset.MonkPerfectBlitz))
