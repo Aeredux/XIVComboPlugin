@@ -126,7 +126,10 @@ namespace XIVComboPlugin
         
         [CustomComboInfo("Solar Bahamut Lux", "Change Summon Solar Bahamut into Lux Solaris after summoning", 27)]
         SummonerSolarBahamutLuxSolaris = 28,
-        
+
+        [CustomComboInfo("One Key Combo SMN", "One Key Combo SMN", 27)]
+        SummonerOneKeyCombo = 66,
+
         // SCHOLAR
         [CustomComboInfo("ED Aetherflow", "Change Energy Drain into Aetherflow when you have no more Aetherflow stacks", 28)]
         ScholarEnergyDrainFeature = 37,
@@ -143,6 +146,9 @@ namespace XIVComboPlugin
 
         [CustomComboInfo("Standard Last Dance", "Change Standard Step into Last Dance when ready", 38)]
         DancerLastDanceCombo = 21,
+
+        [CustomComboInfo("One key combo DNC", "One key combo DNC", 38)]
+        DancerOneKeyCombo = 67,
 
         // WHITE MAGE
         [CustomComboInfo("Solace into Misery", "Replaces Afflatus Solace with Afflatus Misery when Misery is ready to be used", 24)]

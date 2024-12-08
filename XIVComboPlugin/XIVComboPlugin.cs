@@ -120,6 +120,15 @@ namespace XIVComboPlugin
 
             if (!isImguiComboSetupOpen)
                 return;
+            if (orderedByClassJob.Length != Configuration.ComboPresets.Length)
+            {
+                bool[] newConfig = new bool[orderedByClassJob.Length];
+                for (var i = 0; i < orderedByClassJob.Length && i < Configuration.ComboPresets.Length; i++)
+                {
+                    newConfig[i] = Configuration.ComboPresets[i];
+                }
+                Configuration.ComboPresets = newConfig;
+            }
             var flagsSelected = new bool[orderedByClassJob.Length];
             for (var i = 0; i < orderedByClassJob.Length; i++)
             {
@@ -157,7 +166,7 @@ namespace XIVComboPlugin
                                 break;
                             }
                             ImGui.PushItemWidth(200);
-                            ImGui.Checkbox(flagInfo.FancyName, ref flagsSelected[j]);
+                            ImGui.Checkbox(flagInfo.FancyName, ref flagsSelected[(int)flag]);
                             ImGui.PopItemWidth();
                             ImGui.TextColored(new Vector4(0.68f, 0.68f, 0.68f, 1.0f), $"#{j+1}: " + flagInfo.Description);
                             ImGui.Spacing();

@@ -20,5 +20,21 @@
             Delirium = 7390,
             CarveAndSpit = 3643,
             AbyssalDrain = 3641;
+        public static class Buffs
+        {
+            public const ushort
+                // Main Buffs
+                BloodWeapon = 742,
+                Delirium = 1972,
+                EnhancedDelirium = 3836,
+
+                // Periodic Buffs
+                Darkside = 741,
+                BlackestNight = 1178,
+
+                // "DoT" Buffs
+                SaltedEarth = 749,
+                Scorn = 3837;
+        }
     }
 }

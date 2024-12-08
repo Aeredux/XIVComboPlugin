@@ -172,7 +172,7 @@ namespace XIVComboPlugin
             if (hasFlag(CustomComboPreset.DarkBloodGaugeCombo))
             {
                 var gauge = JobGauges.Get<DRKGauge>();
-                if (gauge.Blood >= 50)
+                if (gauge.Blood >= 50 || SearchBuffArray(DRK.Buffs.Delirium))
                 {
                     if (actionID == DRK.Souleater)
                         return DRK.Bloodspiller;
@@ -553,21 +553,96 @@ namespace XIVComboPlugin
             }
 
             // SUMMONER
-            // Change Fester/Necrotize into Energy Drain
-            if (hasFlag(CustomComboPreset.SummonerEDFesterCombo))
+           //SummonerOneKeyCombo
+            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo) && actionID == SMN.Ruin3)
+            {
+                SMNGauge smnGauge = JobGauges.Get<SMNGauge>();
+                if (actionManager->IsActionOffCooldown(ActionType.Action, SMN.SummonBahamut))
+                    return SMN.SummonBahamut;
+                else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.Deathflare) && actionManager->IsActionOffCooldown(ActionType.Action, SMN.Deathflare))
+                    return SMN.Deathflare;
+                else if (lastMove == SMN.Deathflare)
+                    return SMN.EnkindleBahamut;
+                // at this point all summons are ready (bahamut always ready)
+                // attunement time doesn't work for bahamut
+                // isattuned doesn't seem to work
+                // ready is down only after eikon is summoned
+                else if (!actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit) && smnGauge.IsIfritReady)
+                    return SMN.AstralImpulse;
+                else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit))
+                    return SMN.SummonIfrit;
+                else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsTitanReady)
+                    return SMN.RubyRite;
+                else if (smnGauge.IsTitanReady)
+                    return SMN.SummonTitan;
+                else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsGarudaReady)
+                    return SMN.TopazRite;
+                else if (smnGauge.IsGarudaReady)
+                    return SMN.SummonGaruda;
+                else if (smnGauge.AttunmentTimerRemaining > 0)
+                    return SMN.EmeraldRite;
+                else if (SearchBuffArray(SMN.Buffs.FurtherRuin))
+                    return SMN.Ruin4;
+                else
+                    return SMN.Ruin3;
+            }
+
+            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo) && actionID == SMN.Outburst)
+            {
+                SMNGauge smnGauge = JobGauges.Get<SMNGauge>();
+                if (actionManager->IsActionOffCooldown(ActionType.Action, SMN.SummonBahamut))
+                    return SMN.SummonBahamut;
+                else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.Deathflare) && actionManager->IsActionOffCooldown(ActionType.Action, SMN.Deathflare))
+                    return SMN.Deathflare;
+                else if (lastMove == SMN.Deathflare)
+                    return SMN.EnkindleBahamut;
+                // at this point all summons are ready (bahamut always ready)
+                // attunement time doesn't work for bahamut
+                // isattuned doesn't seem to work
+                // ready is down only after eikon is summoned
+                else if (!actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit) && smnGauge.IsIfritReady)
+                    return SMN.AstralFlare;
+                else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit))
+                    return SMN.SummonIfrit;
+                else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsTitanReady)
+                    return SMN.RubyOutburst;
+                else if (smnGauge.IsTitanReady)
+                    return SMN.SummonTitan;
+                else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsGarudaReady)
+                    return SMN.TopazOutburst;
+                else if (smnGauge.IsGarudaReady)
+                    return SMN.SummonGaruda;
+                else if (smnGauge.AttunmentTimerRemaining > 0)
+                    return SMN.EmeraldOutburst;
+                else if (SearchBuffArray(SMN.Buffs.FurtherRuin))
+                    return SMN.Ruin4;
+                else
+                    return SMN.Outburst;
+            }
+
+            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo) && actionID == SMN.Swiftcast)
+            {
+                if (!actionManager->IsActionOffCooldown(ActionType.Action, SMN.Swiftcast))
+                    return SMN.Resurrection;
+                else return SMN.Swiftcast;
+            }
+
+                // Change Fester/Necrotize into Energy Drain
+                if (hasFlag(CustomComboPreset.SummonerEDFesterCombo))
                 if (actionID == SMN.Fester || actionID == SMN.Necrotize)
                 {
-                    if (!JobGauges.Get<SMNGauge>().HasAetherflowStacks)
+                    SMNGauge smnGauge = JobGauges.Get<SMNGauge>();
+                    if (!smnGauge.HasAetherflowStacks)
                         return SMN.EnergyDrain;
                     return iconHook.Original(self, actionID);
                 }
-
             //Change Painflare into Energy Syphon
             if (hasFlag(CustomComboPreset.SummonerESPainflareCombo))
                 if (actionID == SMN.Painflare)
                 {
-                    if (!JobGauges.Get<SMNGauge>().HasAetherflowStacks)
-                        return SMN.EnergySyphon;
+                    SMNGauge smnGauge = JobGauges.Get<SMNGauge>();
+                    if (!smnGauge.HasAetherflowStacks)
+                        return SMN.EnergySiphon;
                     return SMN.Painflare;
                 }
             
@@ -592,22 +667,79 @@ namespace XIVComboPlugin
                 }
 
             // DANCER
-
+            /*
+             * one button combo
+             * single:
+             * dance > yellow/green > 2 combo
+             * 
+             * 
+             * multi:
+             * dance > enhanced > basic, order doesn't matter for enhanced
+             */
             // AoE GCDs are split into two buttons, because priority matters
             // differently in different single-target moments. Thanks yoship.
             // Replaces each GCD with its procced version.
+            if (hasFlag(CustomComboPreset.DancerOneKeyCombo))
+            {
+                if (actionID == DNC.Cascade)
+                {
+                    if (SearchBuffArray(DNC.Buffs.StandardStep))
+                    {
+                        if (Highlighted(DNC.Emboite))
+                            return DNC.Emboite;
+                        if (Highlighted(DNC.Entrechat))
+                            return DNC.Emboite;
+                        if (Highlighted(DNC.Jete))
+                            return DNC.Emboite;
+                        if (Highlighted(DNC.Pirouette))
+                            return DNC.Emboite;
+                    }
+                    if (Highlighted(DNC.ReverseCascade))
+                        return DNC.ReverseCascade;
+                    if (Highlighted(DNC.Fountainfall))
+                        return DNC.Fountainfall;
+                    if (Highlighted(DNC.Fountain))
+                        return DNC.Fountain;
+                    return DNC.Cascade;
+                }
+            }
+            //multi
+            if (hasFlag(CustomComboPreset.DancerOneKeyCombo))
+            {
+                if (actionID == DNC.Windmill)
+                {
+                    if (SearchBuffArray(DNC.Buffs.StandardStep))
+                    {
+                        if (Highlighted(DNC.Emboite))
+                            return DNC.Emboite;
+                        if (Highlighted(DNC.Entrechat))
+                            return DNC.Emboite;
+                        if (Highlighted(DNC.Jete))
+                            return DNC.Emboite;
+                        if (Highlighted(DNC.Pirouette))
+                            return DNC.Emboite;
+                    }
+                    if (Highlighted(DNC.RisingWindmill))
+                        return DNC.RisingWindmill;
+                    if (Highlighted(DNC.Bloodshower))
+                        return DNC.Bloodshower;
+                    if (Highlighted(DNC.Bladeshower))
+                        return DNC.Bladeshower;
+                    return DNC.Windmill;
+                }
+            }
             if (hasFlag(CustomComboPreset.DancerAoeGcdFeature))
             {
                 if (actionID == DNC.Bloodshower)
                 {
-                    if (SearchBuffArray(DNC.BuffFlourishingFlow) || SearchBuffArray(DNC.BuffSilkenFlow))
+                    if (SearchBuffArray(DNC.Buffs.FlourishingFlow) || SearchBuffArray(DNC.Buffs.SilkenFlow))
                         return DNC.Bloodshower;
                     return DNC.Bladeshower;
                 }
 
                 if (actionID == DNC.RisingWindmill)
                 {
-                    if (SearchBuffArray(DNC.BuffFlourishingSymmetry) || SearchBuffArray(DNC.BuffSilkenSymmetry))
+                    if (SearchBuffArray(DNC.Buffs.FlourishingSymmetry) || SearchBuffArray(DNC.Buffs.SilkenSymmetry))
                         return DNC.RisingWindmill;
                     return DNC.Windmill;
                 }
@@ -618,7 +750,7 @@ namespace XIVComboPlugin
             {
                 if (actionID == DNC.FanDance1)
                 {
-                    if (SearchBuffArray(DNC.BuffThreefoldFanDance))
+                    if (SearchBuffArray(DNC.Buffs.ThreeFoldFanDance))
                         return DNC.FanDance3;
                     return DNC.FanDance1;
                 }
@@ -626,7 +758,7 @@ namespace XIVComboPlugin
                 // Fan Dance 2 changes into Fan Dance 3 while flourishing.
                 if (actionID == DNC.FanDance2)
                 {
-                    if (SearchBuffArray(DNC.BuffThreefoldFanDance))
+                    if (SearchBuffArray(DNC.Buffs.ThreeFoldFanDance))
                         return DNC.FanDance3;
                     return DNC.FanDance2;
                 }
@@ -636,7 +768,7 @@ namespace XIVComboPlugin
             {
                 if (actionID == DNC.Flourish)
                 {
-                    if (SearchBuffArray(DNC.BuffFourfoldFanDance))
+                    if (SearchBuffArray(DNC.Buffs.FourFoldFanDance))
                         return DNC.FanDance4;
                     return DNC.Flourish;
                 }
@@ -646,7 +778,7 @@ namespace XIVComboPlugin
             {
                 if (actionID == DNC.StandardStep)
                 {
-                    if (SearchBuffArray(DNC.BuffLastDance))
+                    if (SearchBuffArray(DNC.Buffs.LastDanceReady))
                         return DNC.LastDance;
                     return iconHook.Original(self, actionID);
                 }
@@ -1042,6 +1174,12 @@ namespace XIVComboPlugin
                 if (buffs[i].StatusId == needle)
                     return true;
             return false;
-        }        
+        }
+        
+        private unsafe bool Highlighted(uint action)
+        {
+            var actionManager = ActionManager.Instance();
+            return actionManager->IsActionHighlighted(ActionType.Action, action);
+        }
     }
 }
