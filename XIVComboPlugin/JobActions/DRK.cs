@@ -6,6 +6,8 @@
             Souleater = 3632,
             HardSlash = 3617,
             SyphonStrike = 3623,
+            FloodofDarkness = 16466,
+            EdgeofDarkness = 16467,
             StalwartSoul = 16468,
             Unleash = 3621,
             Bloodspiller = 7392,
@@ -20,6 +22,7 @@
             Delirium = 7390,
             CarveAndSpit = 3643,
             AbyssalDrain = 3641;
+
         public static class Buffs
         {
             public const ushort

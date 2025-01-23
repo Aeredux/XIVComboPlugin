@@ -11,6 +11,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Gauge;
 using SerpentCombo = Dalamud.Game.ClientState.JobGauge.Enums.SerpentCombo;
 using DreadCombo = Dalamud.Game.ClientState.JobGauge.Enums.DreadCombo;
 using XIVComboTweaks.Configuration.Helpers;
+using Dalamud.Game.ClientState.Objects;
 
 namespace XIVComboPlugin
 {
@@ -34,14 +35,16 @@ namespace XIVComboPlugin
         private IGameInteropProvider HookProvider;
         private IJobGauges JobGauges;
         private IPluginLog PluginLog;
+        private ITargetManager targetManager;
 
         private unsafe delegate int* getArray(long* address);
 
-        public IconReplacer(ISigScanner scanner, IClientState clientState, IDataManager manager, XIVComboConfiguration configuration, IGameInteropProvider hookProvider, IJobGauges jobGauges, IPluginLog pluginLog)
+        public IconReplacer(ISigScanner scanner, IClientState clientState, IDataManager manager, XIVComboConfiguration configuration, IGameInteropProvider hookProvider, IJobGauges jobGauges, IPluginLog pluginLog, ITargetManager targetManager)
         {
             HookProvider = hookProvider;
             Configuration = configuration;
             this.clientState = clientState;
+            this.targetManager = targetManager;
             JobGauges = jobGauges;
             PluginLog = pluginLog;
 
@@ -122,6 +125,7 @@ namespace XIVComboPlugin
             var comboTime = Marshal.PtrToStructure<float>(comboTimer);
             var level = clientState.LocalPlayer.Level;
             var actionManager = ActionManager.Instance();
+            BaseHelper.Get(clientState.LocalPlayer, level, lastMove, JobGauges, targetManager);
 
             // DRAGOON
 
@@ -171,12 +175,14 @@ namespace XIVComboPlugin
             // Replace Souleater with Bloodspiller if gauge, same for Stalwart Soul/Quietus
             if (hasFlag(CustomComboPreset.DarkBloodGaugeCombo))
             {
+                if (actionID == DRK.EdgeofDarkness && level < 40)
+                    return DRK.FloodofDarkness;
                 var gauge = JobGauges.Get<DRKGauge>();
                 if (gauge.Blood >= 50 || SearchBuffArray(DRK.Buffs.Delirium))
                 {
                     if (actionID == DRK.Souleater)
                         return DRK.Bloodspiller;
-                    if (actionID == DRK.StalwartSoul)
+                    if (actionID == DRK.StalwartSoul || actionID == DRK.Souleater && level < 64)
                         return DRK.Quietus;
                 }
                 
@@ -185,13 +191,13 @@ namespace XIVComboPlugin
             // Replace Shadow wall with: Dark Mind > Rampart > Dark Missionary
             if (hasFlag(CustomComboPreset.DarkMitgiations))
             {
-                if (actionID == DRK.ShadowWall && level >= 38)
+                if (actionID == DRK.ShadowWall)
                 {
                     if (level >= 45 && actionManager->IsActionOffCooldown(ActionType.Action, DRK.DarkMind))
                     {
                         return DRK.DarkMind;
                     }
-                    if (level >= 8 && actionManager->IsActionOffCooldown(ActionType.Action, DRK.Rampart))
+                    if (level >= 8 && actionManager->IsActionOffCooldown(ActionType.Action, DRK.Rampart) || level < 38)
                     {
                         return DRK.Rampart;
                     }
@@ -213,6 +219,8 @@ namespace XIVComboPlugin
                             return DRK.Delirium;
                         return DRK.BloodWeapon;
                     }
+                    if (actionID == DRK.CarveAndSpit && level < 60 && level >= 56)
+                        return DRK.AbyssalDrain;
                 }
             }
 
@@ -268,37 +276,42 @@ namespace XIVComboPlugin
                 }
 
             // WARRIOR
-
-            // Replace Storm's Path with Storm's Path combo
             if (hasFlag(CustomComboPreset.WarriorStormsPathCombo))
-                if (actionID == WAR.StormsPath)
-                {
-                    if (lastMove == WAR.HeavySwing && level >= 4)
-                        return WAR.Maim;
-                    if (lastMove == WAR.Maim && level >= 26)
-                        return WAR.StormsPath;
-                    return WAR.HeavySwing;
-                }
+            {
+                if (WARHelper.applies(actionID))
+                    return WARHelper.move(actionID);
+            }
 
-            // Replace Storm's Eye with Storm's Eye combo
-            if (hasFlag(CustomComboPreset.WarriorStormsEyeCombo))
-                if (actionID == WAR.StormsEye)
-                {
-                    if (lastMove == WAR.HeavySwing && level >= 4)
-                        return WAR.Maim;
-                    if (lastMove == WAR.Maim && level >= 50)
-                        return WAR.StormsEye;
-                    return WAR.HeavySwing;
-                }
+            //// Replace Storm's Path with Storm's Path combo
+            //if (hasFlag(CustomComboPreset.WarriorStormsPathCombo))
+            //    if (actionID == WAR.StormsPath)
+            //    {
+            //        if (lastMove == WAR.HeavySwing && level >= 4)
+            //            return WAR.Maim;
+            //        if (lastMove == WAR.Maim && level >= 26)
+            //            return WAR.StormsPath;
+            //        return WAR.HeavySwing;
+            //    }
 
-            // Replace Mythril Tempest with Mythril Tempest combo
-            if (hasFlag(CustomComboPreset.WarriorMythrilTempestCombo))
-                if (actionID == WAR.MythrilTempest)
-                {
-                    if (lastMove == WAR.Overpower && level >= 40)
-                        return WAR.MythrilTempest;
-                    return WAR.Overpower;
-                }
+            //// Replace Storm's Eye with Storm's Eye combo
+            //if (hasFlag(CustomComboPreset.WarriorStormsEyeCombo))
+            //    if (actionID == WAR.StormsEye)
+            //    {
+            //        if (lastMove == WAR.HeavySwing && level >= 4)
+            //            return WAR.Maim;
+            //        if (lastMove == WAR.Maim && level >= 50)
+            //            return WAR.StormsEye;
+            //        return WAR.HeavySwing;
+            //    }
+
+            //// Replace Mythril Tempest with Mythril Tempest combo
+            //if (hasFlag(CustomComboPreset.WarriorMythrilTempestCombo))
+            //    if (actionID == WAR.MythrilTempest)
+            //    {
+            //        if (lastMove == WAR.Overpower && level >= 40)
+            //            return WAR.MythrilTempest;
+            //        return WAR.Overpower;
+            //    }
 
             // SAMURAI
             if (hasFlag(CustomComboPreset.SamuraiTsubameCombo))
@@ -605,26 +618,26 @@ namespace XIVComboPlugin
                 else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit))
                     return SMN.SummonIfrit;
                 else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsTitanReady)
-                    return SMN.RubyOutburst;
+                    return SMN.RubyDisaster;
                 else if (smnGauge.IsTitanReady)
                     return SMN.SummonTitan;
                 else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsGarudaReady)
-                    return SMN.TopazOutburst;
+                    return SMN.TopazDisaster;
                 else if (smnGauge.IsGarudaReady)
                     return SMN.SummonGaruda;
                 else if (smnGauge.AttunmentTimerRemaining > 0)
-                    return SMN.EmeraldOutburst;
+                    return SMN.EmeraldDisaster;
                 else if (SearchBuffArray(SMN.Buffs.FurtherRuin))
                     return SMN.Ruin4;
                 else
-                    return SMN.Outburst;
+                    return SMN.Tridisaster;
             }
 
-            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo) && actionID == SMN.Swiftcast)
+            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo) && actionID == SMN.Resurrection)
             {
-                if (!actionManager->IsActionOffCooldown(ActionType.Action, SMN.Swiftcast))
-                    return SMN.Resurrection;
-                else return SMN.Swiftcast;
+                if (actionManager->IsActionOffCooldown(ActionType.Action, SMN.Swiftcast))
+                    return SMN.Swiftcast;
+                else return SMN.Resurrection;
             }
 
                 // Change Fester/Necrotize into Energy Drain
@@ -660,11 +673,21 @@ namespace XIVComboPlugin
             // SCHOLAR
             // Change Energy Drain into Aetherflow when you have no more Aetherflow stacks.
             if (hasFlag(CustomComboPreset.ScholarEnergyDrainFeature))
-                if (actionID == SCH.EnergyDrain)
+            {
+                if (SCHHelper.applies(actionID))
+                    return SCHHelper.move(actionID);
+            }
+
+            // Sage
+            // various combos
+            if (hasFlag(CustomComboPreset.SageCombos))
+            {
+                SGEHelper sgeHelper = SGEHelper.Get(JobGauges.Get<SGEGauge>(), clientState.LocalPlayer.StatusList, level, lastMove);
+                if (sgeHelper.applies(actionID))
                 {
-                    if (JobGauges.Get<SCHGauge>().Aetherflow == 0) return SCH.Aetherflow;
-                    return SCH.EnergyDrain;
+                    return sgeHelper.move(actionID);
                 }
+            }
 
             // DANCER
             /*
@@ -681,18 +704,23 @@ namespace XIVComboPlugin
             // Replaces each GCD with its procced version.
             if (hasFlag(CustomComboPreset.DancerOneKeyCombo))
             {
-                if (actionID == DNC.Cascade)
+                if (actionID == DNC.Cascade || actionID == DNC.Emboite)
                 {
+                    if (level >= 70 && Ready(DNC.TechnicalStep) && !SearchBuffArray(DNC.Buffs.StandardStep))
+                        return DNC.TechnicalStep;
+                    if (SearchBuffArray(DNC.Buffs.TechnicalStep))
+                    {
+                        if (JobGauges.Get<DNCGauge>().CompletedSteps == 4)
+                            return DNC.TechnicalFinish4;
+                        return JobGauges.Get<DNCGauge>().NextStep;
+                    }
+                    if (Ready(DNC.StandardStep))
+                        return DNC.StandardStep;
                     if (SearchBuffArray(DNC.Buffs.StandardStep))
                     {
-                        if (Highlighted(DNC.Emboite))
-                            return DNC.Emboite;
-                        if (Highlighted(DNC.Entrechat))
-                            return DNC.Emboite;
-                        if (Highlighted(DNC.Jete))
-                            return DNC.Emboite;
-                        if (Highlighted(DNC.Pirouette))
-                            return DNC.Emboite;
+                        if (JobGauges.Get<DNCGauge>().CompletedSteps == 2)
+                            return DNC.StandardFinish2;
+                        return JobGauges.Get<DNCGauge>().NextStep;
                     }
                     if (Highlighted(DNC.ReverseCascade))
                         return DNC.ReverseCascade;
@@ -708,16 +736,21 @@ namespace XIVComboPlugin
             {
                 if (actionID == DNC.Windmill)
                 {
+                    if (level >= 70 && Ready(DNC.TechnicalStep))
+                        return DNC.TechnicalStep;
+                    if (SearchBuffArray(DNC.Buffs.TechnicalStep))
+                    {
+                        if (JobGauges.Get<DNCGauge>().CompletedSteps == 4)
+                            return DNC.TechnicalFinish4;
+                        return JobGauges.Get<DNCGauge>().NextStep;
+                    }
+                    if (Ready(DNC.StandardStep))
+                        return DNC.StandardStep;
                     if (SearchBuffArray(DNC.Buffs.StandardStep))
                     {
-                        if (Highlighted(DNC.Emboite))
-                            return DNC.Emboite;
-                        if (Highlighted(DNC.Entrechat))
-                            return DNC.Emboite;
-                        if (Highlighted(DNC.Jete))
-                            return DNC.Emboite;
-                        if (Highlighted(DNC.Pirouette))
-                            return DNC.Emboite;
+                        if (JobGauges.Get<DNCGauge>().CompletedSteps == 2)
+                            return DNC.StandardFinish2;
+                        return JobGauges.Get<DNCGauge>().NextStep;
                     }
                     if (Highlighted(DNC.RisingWindmill))
                         return DNC.RisingWindmill;
@@ -728,22 +761,22 @@ namespace XIVComboPlugin
                     return DNC.Windmill;
                 }
             }
-            if (hasFlag(CustomComboPreset.DancerAoeGcdFeature))
-            {
-                if (actionID == DNC.Bloodshower)
-                {
-                    if (SearchBuffArray(DNC.Buffs.FlourishingFlow) || SearchBuffArray(DNC.Buffs.SilkenFlow))
-                        return DNC.Bloodshower;
-                    return DNC.Bladeshower;
-                }
+            //if (hasFlag(CustomComboPreset.DancerAoeGcdFeature))
+            //{
+            //    if (actionID == DNC.Bloodshower)
+            //    {
+            //        if (SearchBuffArray(DNC.Buffs.FlourishingFlow) || SearchBuffArray(DNC.Buffs.SilkenFlow))
+            //            return DNC.Bloodshower;
+            //        return DNC.Bladeshower;
+            //    }
 
-                if (actionID == DNC.RisingWindmill)
-                {
-                    if (SearchBuffArray(DNC.Buffs.FlourishingSymmetry) || SearchBuffArray(DNC.Buffs.SilkenSymmetry))
-                        return DNC.RisingWindmill;
-                    return DNC.Windmill;
-                }
-            }
+            //    if (actionID == DNC.RisingWindmill)
+            //    {
+            //        if (SearchBuffArray(DNC.Buffs.FlourishingSymmetry) || SearchBuffArray(DNC.Buffs.SilkenSymmetry))
+            //            return DNC.RisingWindmill;
+            //        return DNC.Windmill;
+            //    }
+            //}
 
             // Fan Dance changes into Fan Dance 3 while flourishing.
             if (hasFlag(CustomComboPreset.DancerFanDanceCombo))
@@ -785,43 +818,46 @@ namespace XIVComboPlugin
             }
 
             // WHM
+            if (WHMHelper.applies(actionID))
+                return WHMHelper.move(actionID);
+            //// Replace Solace with Misery when full blood lily
+            //if (hasFlag(CustomComboPreset.WhiteMageSolaceMiseryFeature))
+            //    if (actionID == WHM.Solace)
+            //    {
+            //        if (JobGauges.Get<WHMGauge>().BloodLily == 3)
+            //            return WHM.Misery;
+            //        return WHM.Solace;
+            //    }
 
-            // Replace Solace with Misery when full blood lily
-            if (hasFlag(CustomComboPreset.WhiteMageSolaceMiseryFeature))
-                if (actionID == WHM.Solace)
-                {
-                    if (JobGauges.Get<WHMGauge>().BloodLily == 3)
-                        return WHM.Misery;
-                    return WHM.Solace;
-                }
-
-            // Replace Solace with Misery when full blood lily
-            if (hasFlag(CustomComboPreset.WhiteMageRaptureMiseryFeature))
-                if (actionID == WHM.Rapture)
-                {
-                    if (JobGauges.Get<WHMGauge>().BloodLily == 3)
-                        return WHM.Misery;
-                    return WHM.Rapture;
-                }
+            //// Replace Solace with Misery when full blood lily
+            //if (hasFlag(CustomComboPreset.WhiteMageRaptureMiseryFeature))
+            //    if (actionID == WHM.Rapture)
+            //    {
+            //        if (JobGauges.Get<WHMGauge>().BloodLily == 3)
+            //            return WHM.Misery;
+            //        return WHM.Rapture;
+            //    }
 
             // BARD
+            if (BRDHelper.applies(actionID))
+                return BRDHelper.move(actionID);
 
-            // Replace HS/BS with SS/RA when procced.
-            if (hasFlag(CustomComboPreset.BardStraightShotUpgradeFeature))
-                if (actionID == BRD.HeavyShot || actionID == BRD.BurstShot)
-                {
-                    if (SearchBuffArray(BRD.BuffHawksEye) || SearchBuffArray(BRD.BuffBarrage))
-                        return iconHook.Original(self, BRD.StraightShot);
-                    return iconHook.Original(self, BRD.HeavyShot);
-                }
+            //// Replace HS/BS with SS/RA when procced.
+            //if (hasFlag(CustomComboPreset.BardStraightShotUpgradeFeature))
+            //    if (actionID == BRD.HeavyShot || actionID == BRD.BurstShot)
+            //    {
+            //        if (SearchBuffArray(BRD.Buffs.HawksEye) || SearchBuffArray(BRD.Buffs.Barrage))
+            //            return iconHook.Original(self, BRD.StraightShot);
+            //        return iconHook.Original(self, BRD.HeavyShot);
+            //    }
 
-            if (hasFlag(CustomComboPreset.BardAoEUpgradeFeature))
-                if (actionID == BRD.QuickNock || actionID == BRD.Ladonsbite)
-                {
-                    if (SearchBuffArray(BRD.BuffHawksEye) || SearchBuffArray(BRD.BuffBarrage))
-                        return iconHook.Original(self, BRD.WideVolley);
-                    return iconHook.Original(self, BRD.QuickNock);
-                }
+            //if (hasFlag(CustomComboPreset.BardAoEUpgradeFeature))
+            //    if (actionID == BRD.QuickNock || actionID == BRD.Ladonsbite)
+            //    {
+            //        if (SearchBuffArray(BRD.Buffs.HawksEye) || SearchBuffArray(BRD.Buffs.Barrage))
+            //            return iconHook.Original(self, BRD.WideVolley);
+            //        return iconHook.Original(self, BRD.QuickNock);
+            //    }
 
             // MONK
             //if (hasFlag(CustomComboPreset.MonkFuryCombo))
@@ -1180,6 +1216,12 @@ namespace XIVComboPlugin
         {
             var actionManager = ActionManager.Instance();
             return actionManager->IsActionHighlighted(ActionType.Action, action);
+        }
+
+        private unsafe bool Ready(uint action)
+        {
+            var actionManager = ActionManager.Instance();
+            return actionManager->IsActionOffCooldown(ActionType.Action, action);
         }
     }
 }

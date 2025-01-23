@@ -9,6 +9,8 @@ using Dalamud.Utility;
 using Dalamud.IoC;
 using Dalamud.Plugin.Services;
 using Dalamud.Interface.Utility;
+using Dalamud.Game.Network.Structures.InfoProxy;
+using Dalamud.Game.ClientState.Objects;
 
 namespace XIVComboPlugin
 {
@@ -25,6 +27,8 @@ namespace XIVComboPlugin
         [PluginService] internal static IGameInteropProvider HookProvider{ get; private set; } = null!;
         [PluginService] internal static IPluginLog PluginLog { get; private set; } = null!;
         [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
+
+        [PluginService] internal static ITargetManager TargetManager { get; private set; } = null!;
 
         public XIVComboConfiguration Configuration;
 
@@ -45,7 +49,7 @@ namespace XIVComboPlugin
                 Configuration.Version = 4;
             }
 
-            this.iconReplacer = new IconReplacer(SigScanner, ClientState, DataManager, this.Configuration, HookProvider, JobGauges, PluginLog);
+            this.iconReplacer = new IconReplacer(SigScanner, ClientState, DataManager, this.Configuration, HookProvider, JobGauges, PluginLog, TargetManager);
 
             this.iconReplacer.Enable();
 

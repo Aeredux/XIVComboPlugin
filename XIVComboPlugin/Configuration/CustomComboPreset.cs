@@ -134,6 +134,10 @@ namespace XIVComboPlugin
         [CustomComboInfo("ED Aetherflow", "Change Energy Drain into Aetherflow when you have no more Aetherflow stacks", 28)]
         ScholarEnergyDrainFeature = 37,
 
+        // SAGE
+        [CustomComboInfo("Sage Combo", "sage combos", 40)]
+        SageCombos = 68,
+
         // DANCER
         [CustomComboInfo("AoE GCD procs", "DNC AoE procs turn into their normal abilities when not procced", 38)]
         DancerAoeGcdFeature = 32,

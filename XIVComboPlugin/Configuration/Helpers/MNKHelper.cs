@@ -94,13 +94,13 @@ namespace XIVComboTweaks.Configuration.Helpers
 
         private uint MoveBasedOnPrevious()
         {
-            if (lastMove == MNK.DragonKick || lastMove == MNK.Bootshine || lastMove == MNK.LeapingOpo)
+            if (lastMove == MNK.DragonKick || lastMove == MNK.Bootshine || lastMove == MNK.LeapingOpo || lastMove == MNK.ArmOfTheDestroyer)
             {
                 if (g.RaptorFury < 1 && level >= 18)
                     return MNK.TwinSnakes;
                 return MNK.TrueStrike;
             }
-            else if (lastMove == MNK.TwinSnakes || lastMove == MNK.TrueStrike || lastMove == MNK.RisingRaptor)
+            else if (lastMove == MNK.TwinSnakes || lastMove == MNK.TrueStrike || lastMove == MNK.RisingRaptor || lastMove == MNK.FourPointFury)
             {
                 if (g.CoeurlFury < 1 && level >= 30)
                     return MNK.Demolish;
