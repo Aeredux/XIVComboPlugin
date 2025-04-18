@@ -12,6 +12,8 @@ using SerpentCombo = Dalamud.Game.ClientState.JobGauge.Enums.SerpentCombo;
 using DreadCombo = Dalamud.Game.ClientState.JobGauge.Enums.DreadCombo;
 using XIVComboTweaks.Configuration.Helpers;
 using Dalamud.Game.ClientState.Objects;
+using System.Reflection;
+using System.Linq;
 
 namespace XIVComboPlugin
 {
@@ -125,7 +127,37 @@ namespace XIVComboPlugin
             var comboTime = Marshal.PtrToStructure<float>(comboTimer);
             var level = clientState.LocalPlayer.Level;
             var actionManager = ActionManager.Instance();
-            BaseHelper.Get(clientState.LocalPlayer, level, lastMove, JobGauges, targetManager);
+            BaseHelper.Get(clientState.LocalPlayer, level, lastMove, JobGauges, targetManager, iconHook, self);
+            //if (false)
+            //try
+            //{
+            //    var subclasses = Assembly.GetExecutingAssembly()
+            //                     .GetTypes()
+            //                     .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(BaseHelper)));
+
+            //    // Iterate and print subclasses
+            //    foreach (var subclass in subclasses)
+            //    {
+
+            //        MethodInfo appliesMethod = subclass.GetMethod("applies", BindingFlags.Static | BindingFlags.Public);
+
+            //        if (appliesMethod != null)
+            //        {
+            //            if ((bool)appliesMethod.Invoke(null, [actionID]))
+            //            {
+            //                MethodInfo moveMethod = subclass.GetMethod("move", BindingFlags.Static | BindingFlags.Public);
+            //                if (moveMethod != null)
+            //                {
+            //                    return (ulong)moveMethod.Invoke(null, null);
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception e) // Catches exceptions thrown inside the invoked method
+            //{
+            //    Console.WriteLine("error" + e.Message);
+            //}
 
             // DRAGOON
 
@@ -172,108 +204,13 @@ namespace XIVComboPlugin
 
             // DARK KNIGHT
 
-            // Replace Souleater with Bloodspiller if gauge, same for Stalwart Soul/Quietus
-            if (hasFlag(CustomComboPreset.DarkBloodGaugeCombo))
-            {
-                if (actionID == DRK.EdgeofDarkness && level < 40)
-                    return DRK.FloodofDarkness;
-                var gauge = JobGauges.Get<DRKGauge>();
-                if (gauge.Blood >= 50 || SearchBuffArray(DRK.Buffs.Delirium))
-                {
-                    if (actionID == DRK.Souleater)
-                        return DRK.Bloodspiller;
-                    if (actionID == DRK.StalwartSoul || actionID == DRK.Souleater && level < 64)
-                        return DRK.Quietus;
-                }
-                
-            }
-
-            // Replace Shadow wall with: Dark Mind > Rampart > Dark Missionary
-            if (hasFlag(CustomComboPreset.DarkMitgiations))
-            {
-                if (actionID == DRK.ShadowWall)
-                {
-                    if (level >= 45 && actionManager->IsActionOffCooldown(ActionType.Action, DRK.DarkMind))
-                    {
-                        return DRK.DarkMind;
-                    }
-                    if (level >= 8 && actionManager->IsActionOffCooldown(ActionType.Action, DRK.Rampart) || level < 38)
-                    {
-                        return DRK.Rampart;
-                    }
-                    if (level >= 66 && actionManager->IsActionOffCooldown(ActionType.Action, DRK.DarkMissionary))
-                    {
-                        return DRK.DarkMissionary;
-                    }
-                }
-            }
-
-            // Replace carve and spit/abyssal drain with blood weapon/delirium when it is available
-            if (hasFlag(CustomComboPreset.DarkBloodWeapon))
-            {
-                if (actionID == DRK.CarveAndSpit || actionID == DRK.AbyssalDrain)
-                {
-                    if (actionManager->IsActionOffCooldown(ActionType.Action, DRK.BloodWeapon))
-                    {
-                        if (level >= 68)
-                            return DRK.Delirium;
-                        return DRK.BloodWeapon;
-                    }
-                    if (actionID == DRK.CarveAndSpit && level < 60 && level >= 56)
-                        return DRK.AbyssalDrain;
-                }
-            }
-
-            // Replace Souleater with Souleater combo chain
-            if (hasFlag(CustomComboPreset.DarkSouleaterCombo))
-                if (actionID == DRK.Souleater)
-                {
-                    if (lastMove == DRK.HardSlash && level >= 2)
-                        return DRK.SyphonStrike;
-                    if (lastMove == DRK.SyphonStrike && level >= 26)
-                        return DRK.Souleater;
-                    return DRK.HardSlash;
-                }
-
-            // Replace Stalwart Soul with Stalwart Soul combo chain
-            if (hasFlag(CustomComboPreset.DarkStalwartSoulCombo))
-                if (actionID == DRK.StalwartSoul)
-                {
-                    if (lastMove == DRK.Unleash && level >= 40)
-                        return DRK.StalwartSoul;
-                    return DRK.Unleash;
-                }
+            if (DRKHelper.applies(actionID))
+                return DRKHelper.move(actionID);
 
             // PALADIN
 
-            // Replace Royal Authority with Royal Authority combo
-            if (hasFlag(CustomComboPreset.PaladinRoyalAuthorityCombo))
-                if (actionID == PLD.RoyalAuthority || actionID == PLD.RageOfHalone)
-                {
-                    if (lastMove == PLD.FastBlade && level >= 4)
-                        return PLD.RiotBlade;
-                    if (lastMove == PLD.RiotBlade && level >= 26)
-                        return iconHook.Original(self, PLD.RageOfHalone);
-                    return PLD.FastBlade;
-                }
-
-            // Replace Prominence with Prominence combo
-            if (hasFlag(CustomComboPreset.PaladinProminenceCombo))
-                if (actionID == PLD.Prominence)
-                {
-                    if (lastMove == PLD.TotalEclipse && level >= 40)
-                        return PLD.Prominence;
-                    return PLD.TotalEclipse;
-                }
-
-            // Replace Requiescat/Imperator with Confiteor when under the effect of Requiescat
-            if (hasFlag(CustomComboPreset.PaladinRequiescatCombo))
-                if (actionID == PLD.Requiescat || actionID == PLD.Imperator)
-                {
-                    if (SearchBuffArray(PLD.BuffRequiescat) && level >= 80)
-                        return iconHook.Original(self, PLD.Confiteor);
-                    return iconHook.Original(self, actionID);
-                }
+            if (PLDHelper.applies(actionID))
+                return PLDHelper.move(actionID);
 
             // WARRIOR
             if (hasFlag(CustomComboPreset.WarriorStormsPathCombo))
@@ -424,60 +361,8 @@ namespace XIVComboPlugin
             // GUNBREAKER
 
             // Replace Solid Barrel with Solid Barrel combo
-            if (hasFlag(CustomComboPreset.GunbreakerSolidBarrelCombo))
-                if (actionID == GNB.SolidBarrel)
-                {
-                    if (lastMove == GNB.KeenEdge && level >= 4)
-                        return GNB.BrutalShell;
-                    if (lastMove == GNB.BrutalShell && level >= 26)
-                        return GNB.SolidBarrel;
-                    return GNB.KeenEdge;
-                }
-
-            // Replace Wicked Talon with Gnashing Fang combo
-            if (hasFlag(CustomComboPreset.GunbreakerGnashingFangCont))
-                if (actionID == GNB.GnashingFang)
-                {
-                    if (level >= GNB.LevelContinuation)
-                    {
-                        if (SearchBuffArray(GNB.BuffReadyToRip))
-                            return GNB.JugularRip;
-                        if (SearchBuffArray(GNB.BuffReadyToTear))
-                            return GNB.AbdomenTear;
-                        if (SearchBuffArray(GNB.BuffReadyToGouge))
-                            return GNB.EyeGouge;
-                    }
-                    return iconHook.Original(self, GNB.GnashingFang);
-                }
-
-            // Replace Burst Strike with Continuation
-            if (hasFlag(CustomComboPreset.GunbreakerBurstStrikeCont))
-                if (actionID == GNB.BurstStrike)
-                {
-                    if (level >= GNB.LevelEnhancedContinuation)
-                        if (SearchBuffArray(GNB.BuffReadyToBlast))
-                            return GNB.Hypervelocity;
-                    return GNB.BurstStrike;
-                }
-
-            // Replace Demon Slaughter with Demon Slaughter combo
-            if (hasFlag(CustomComboPreset.GunbreakerDemonSlaughterCombo))
-                if (actionID == GNB.DemonSlaughter)
-                {
-                    if (lastMove == GNB.DemonSlice && level >= 40)
-                        return GNB.DemonSlaughter;
-                    return GNB.DemonSlice;
-                }
-
-            // Replace Fated Brand with Continuation
-            if (hasFlag(CustomComboPreset.GunbreakerFatedCircleCont))
-                if (actionID == GNB.FatedCircle)
-                {
-                    if (level >= GNB.LevelEnhancedContinuation2)
-                        if (SearchBuffArray(GNB.BuffReadyToRaze))
-                            return GNB.FatedBrand;
-                    return GNB.FatedCircle;
-                }
+            if (GNBHelper.applies(actionID))
+                return GNBHelper.move(actionID);
 
             // MACHINIST
 
@@ -559,114 +444,19 @@ namespace XIVComboPlugin
                 if (actionID == AST.MinorArcana)
                 {
                     var x = iconHook.Original(self, actionID);
-                    if (x != AST.MinorArcana && level >= 70) 
+                    if (x != AST.MinorArcana && level >= 70)
                         return x;
                     return iconHook.Original(self, AST.AstralDraw);
                 }
             }
 
             // SUMMONER
-           //SummonerOneKeyCombo
-            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo) && actionID == SMN.Ruin3)
+            //SummonerOneKeyCombo
+            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo))
             {
-                SMNGauge smnGauge = JobGauges.Get<SMNGauge>();
-                if (actionManager->IsActionOffCooldown(ActionType.Action, SMN.SummonBahamut))
-                    return SMN.SummonBahamut;
-                else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.Deathflare) && actionManager->IsActionOffCooldown(ActionType.Action, SMN.Deathflare))
-                    return SMN.Deathflare;
-                else if (lastMove == SMN.Deathflare)
-                    return SMN.EnkindleBahamut;
-                // at this point all summons are ready (bahamut always ready)
-                // attunement time doesn't work for bahamut
-                // isattuned doesn't seem to work
-                // ready is down only after eikon is summoned
-                else if (!actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit) && smnGauge.IsIfritReady)
-                    return SMN.AstralImpulse;
-                else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit))
-                    return SMN.SummonIfrit;
-                else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsTitanReady)
-                    return SMN.RubyRite;
-                else if (smnGauge.IsTitanReady)
-                    return SMN.SummonTitan;
-                else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsGarudaReady)
-                    return SMN.TopazRite;
-                else if (smnGauge.IsGarudaReady)
-                    return SMN.SummonGaruda;
-                else if (smnGauge.AttunmentTimerRemaining > 0)
-                    return SMN.EmeraldRite;
-                else if (SearchBuffArray(SMN.Buffs.FurtherRuin))
-                    return SMN.Ruin4;
-                else
-                    return SMN.Ruin3;
+                if (SMNHelper.applies(actionID))
+                    return SMNHelper.move(actionID);
             }
-
-            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo) && actionID == SMN.Outburst)
-            {
-                SMNGauge smnGauge = JobGauges.Get<SMNGauge>();
-                if (actionManager->IsActionOffCooldown(ActionType.Action, SMN.SummonBahamut))
-                    return SMN.SummonBahamut;
-                else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.Deathflare) && actionManager->IsActionOffCooldown(ActionType.Action, SMN.Deathflare))
-                    return SMN.Deathflare;
-                else if (lastMove == SMN.Deathflare)
-                    return SMN.EnkindleBahamut;
-                // at this point all summons are ready (bahamut always ready)
-                // attunement time doesn't work for bahamut
-                // isattuned doesn't seem to work
-                // ready is down only after eikon is summoned
-                else if (!actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit) && smnGauge.IsIfritReady)
-                    return SMN.AstralFlare;
-                else if (actionManager->IsActionHighlighted(ActionType.Action, SMN.SummonIfrit))
-                    return SMN.SummonIfrit;
-                else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsTitanReady)
-                    return SMN.RubyDisaster;
-                else if (smnGauge.IsTitanReady)
-                    return SMN.SummonTitan;
-                else if (smnGauge.AttunmentTimerRemaining > 0 && smnGauge.IsGarudaReady)
-                    return SMN.TopazDisaster;
-                else if (smnGauge.IsGarudaReady)
-                    return SMN.SummonGaruda;
-                else if (smnGauge.AttunmentTimerRemaining > 0)
-                    return SMN.EmeraldDisaster;
-                else if (SearchBuffArray(SMN.Buffs.FurtherRuin))
-                    return SMN.Ruin4;
-                else
-                    return SMN.Tridisaster;
-            }
-
-            if (hasFlag(CustomComboPreset.SummonerOneKeyCombo) && actionID == SMN.Resurrection)
-            {
-                if (actionManager->IsActionOffCooldown(ActionType.Action, SMN.Swiftcast))
-                    return SMN.Swiftcast;
-                else return SMN.Resurrection;
-            }
-
-                // Change Fester/Necrotize into Energy Drain
-                if (hasFlag(CustomComboPreset.SummonerEDFesterCombo))
-                if (actionID == SMN.Fester || actionID == SMN.Necrotize)
-                {
-                    SMNGauge smnGauge = JobGauges.Get<SMNGauge>();
-                    if (!smnGauge.HasAetherflowStacks)
-                        return SMN.EnergyDrain;
-                    return iconHook.Original(self, actionID);
-                }
-            //Change Painflare into Energy Syphon
-            if (hasFlag(CustomComboPreset.SummonerESPainflareCombo))
-                if (actionID == SMN.Painflare)
-                {
-                    SMNGauge smnGauge = JobGauges.Get<SMNGauge>();
-                    if (!smnGauge.HasAetherflowStacks)
-                        return SMN.EnergySiphon;
-                    return SMN.Painflare;
-                }
-            
-            //Change Summon Solar Bahamut into Lux Solaris
-            if(hasFlag(CustomComboPreset.SummonerSolarBahamutLuxSolaris))
-                if (actionID == SMN.Aethercharge)
-                {
-                    if (SearchBuffArray(SMN.Buffs.RefulgentLux))
-                        return SMN.LuxSolaris;
-                    return iconHook.Original(self, actionID);
-                }
 
 
 
@@ -860,6 +650,8 @@ namespace XIVComboPlugin
             //    }
 
             // MONK
+            if (MNKHelper.applies(actionID))
+                return MNKHelper.move(actionID);
             //if (hasFlag(CustomComboPreset.MonkFuryCombo))
             //{
             //    if (actionID == MNK.Bootshine || actionID == MNK.LeapingOpo)
@@ -899,115 +691,68 @@ namespace XIVComboPlugin
              */
             //perfect balance makes it so that you can't get form
             //so when u exit you have no form, unless you get formless fist from masterful blitz
-            MNKHelper mnkHelper = MNKHelper.Get(JobGauges.Get<MNKGauge>(), clientState.LocalPlayer.StatusList, level, lastMove);
-            if (hasFlag(CustomComboPreset.MonkFuryCombo2))
+            //MNKHelper mnkHelper = MNKHelper.Get(JobGauges.Get<MNKGauge>(), clientState.LocalPlayer.StatusList, level, lastMove);
+            //if (hasFlag(CustomComboPreset.MonkFuryCombo2))
 
-            {
-                if (actionID == MNK.Demolish)
-                    return mnkHelper.SingleTarget();
-            }
+            //{
+            //    if (actionID == MNK.Demolish)
+            //        return mnkHelper.SingleTarget();
+            //}
 
-            // same as above but for Aoe
-            if (hasFlag(CustomComboPreset.MonkFuryCombo3))
-            {
-                if (actionID == MNK.Rockbreaker)
-                    return mnkHelper.MultiTarget();
-            }
+            //// same as above but for Aoe
+            //if (hasFlag(CustomComboPreset.MonkFuryCombo3))
+            //{
+            //    if (actionID == MNK.Rockbreaker)
+            //        return mnkHelper.MultiTarget();
+            //}
 
-            if (hasFlag(CustomComboPreset.MonkPerfectBlitz))
-            {
-                if (actionID == MNK.MasterfulBlitz)
-                {
-                    if (JobGauges.Get<MNKGauge>().BlitzTimeRemaining <= 0 || level < 60)
-                        return MNK.PerfectBalance;
-                    return iconHook.Original(self, actionID);
-                }
-            }
+            //if (hasFlag(CustomComboPreset.MonkPerfectBlitz))
+            //{
+            //    if (actionID == MNK.MasterfulBlitz)
+            //    {
+            //        if (JobGauges.Get<MNKGauge>().BlitzTimeRemaining <= 0 || level < 60)
+            //            return MNK.PerfectBalance;
+            //        return iconHook.Original(self, actionID);
+            //    }
+            //}
 
             // RED MAGE
 
             // Replace Veraero/thunder 2 with Impact when Dualcast is active
-            if (hasFlag(CustomComboPreset.RedMageAoECombo))
-            {
-                if (actionID == RDM.Veraero2)
-                {
-                    if (SearchBuffArray(RDM.BuffSwiftcast) || SearchBuffArray(RDM.BuffDualcast) || 
-                        SearchBuffArray(RDM.BuffAcceleration) || SearchBuffArray(RDM.BuffChainspell))
-                        return iconHook.Original(self, RDM.Scatter);
-                    return iconHook.Original(self, actionID);
-                }
-
-                if (actionID == RDM.Verthunder2)
-                {
-                    if (SearchBuffArray(RDM.BuffSwiftcast) || SearchBuffArray(RDM.BuffDualcast) ||
-                        SearchBuffArray(RDM.BuffAcceleration) || SearchBuffArray(RDM.BuffChainspell))
-                        return iconHook.Original(self, RDM.Scatter);
-                    return iconHook.Original(self, actionID);
-                }
-            }
-
-            // Replace Redoublement with Redoublement combo, Enchanted if possible.
-            if (hasFlag(CustomComboPreset.RedMageMeleeCombo))
-                if (actionID == RDM.Redoublement)
-                {
-                    if ((lastMove == RDM.Riposte) && level >= 35)
-                        return iconHook.Original(self, RDM.Zwerchhau);
-
-                    if (lastMove == RDM.Zwerchhau && level >= 50)
-                        return iconHook.Original(self, RDM.Redoublement);
-
-                    return iconHook.Original(self, RDM.Riposte);
-                }
-
-            if (hasFlag(CustomComboPreset.RedMageVerprocCombo))
-            {
-                if (actionID == RDM.Verstone)
-                {
-                    if (SearchBuffArray(RDM.BuffGrandImpactReady)) return iconHook.Original(self, RDM.Jolt);
-                    if (level >= 80 && (lastMove == RDM.Verflare || lastMove == RDM.Verholy)) return RDM.Scorch;
-                    if (level >= 90 && lastMove == RDM.Scorch) return RDM.Resolution;
-                    if (SearchBuffArray(RDM.BuffVerstoneReady)) return RDM.Verstone;
-                    return iconHook.Original(self, RDM.Jolt);
-                }
-                if (actionID == RDM.Verfire)
-                {
-                    if (SearchBuffArray(RDM.BuffGrandImpactReady)) return iconHook.Original(self, RDM.Jolt);
-                    if (level >= 80 && (lastMove == RDM.Verflare || lastMove == RDM.Verholy)) return RDM.Scorch;
-                    if (level >= 90 && lastMove == RDM.Scorch) return RDM.Resolution;
-                    if (SearchBuffArray(RDM.BuffVerfireReady)) return RDM.Verfire;
-                    return iconHook.Original(self, RDM.Jolt);
-                }
-            }
+            if (RDMHelper.applies(actionID))
+                return RDMHelper.move(actionID);
 
             // REAPER 
-            if (hasFlag(CustomComboPreset.ReaperSliceCombo))
-            {
-                if (actionID == RPR.Slice)
-                {
-                    if (lastMove == RPR.Slice && level >= RPR.Levels.WaxingSlice)
-                        return RPR.WaxingSlice;
+            if (RPRHelper.applies(actionID))
+                return RPRHelper.move(actionID);
+            //if (hasFlag(CustomComboPreset.ReaperSliceCombo))
+            //{
+            //    if (actionID == RPR.Slice)
+            //    {
+            //        if (lastMove == RPR.Slice && level >= RPR.Levels.WaxingSlice)
+            //            return RPR.WaxingSlice;
 
-                    if (lastMove == RPR.WaxingSlice && level >= RPR.Levels.InfernalSlice)
-                        return RPR.InfernalSlice;
+            //        if (lastMove == RPR.WaxingSlice && level >= RPR.Levels.InfernalSlice)
+            //            return RPR.InfernalSlice;
 
-                    return RPR.Slice;
-                }
-            }
+            //        return RPR.Slice;
+            //    }
+            //}
 
-            if (hasFlag(CustomComboPreset.ReaperScytheCombo))
-            {
-                if (actionID == RPR.SpinningScythe)
-                {
-                    if (lastMove == RPR.SpinningScythe && level >= RPR.Levels.NightmareScythe)
-                        return RPR.NightmareScythe;
+            //if (hasFlag(CustomComboPreset.ReaperScytheCombo))
+            //{
+            //    if (actionID == RPR.SpinningScythe)
+            //    {
+            //        if (lastMove == RPR.SpinningScythe && level >= RPR.Levels.NightmareScythe)
+            //            return RPR.NightmareScythe;
 
-                    return RPR.SpinningScythe;
-                }
-            }
+            //        return RPR.SpinningScythe;
+            //    }
+            //}
 
             if (hasFlag(CustomComboPreset.ReaperRegressFeature))
             {
-                if (actionID == RPR.Egress || actionID == RPR.Ingress)
+                if (actionID == RPR.HellsEgress || actionID == RPR.HellsIngress)
                 {
                     if (SearchBuffArray(RPR.Buffs.Threshold)) return RPR.Regress;
                     return actionID;
@@ -1024,17 +769,17 @@ namespace XIVComboPlugin
                 }
             }
 
-            if (hasFlag(CustomComboPreset.ReaperArcaneFeature))
-            {
-                if (actionID == RPR.ArcaneCircle)
-                {
-                    if (SearchBuffArray(RPR.Buffs.ImSac1) ||
-                        SearchBuffArray(RPR.Buffs.ImSac2))
-                        return RPR.PlentifulHarvest;
-                    return actionID;
-                }
-            }
-            
+            //if (hasFlag(CustomComboPreset.ReaperArcaneFeature))
+            //{
+            //    if (actionID == RPR.ArcaneCircle)
+            //    {
+            //        if (SearchBuffArray(RPR.Buffs.ImSac1) ||
+            //            SearchBuffArray(RPR.Buffs.ImSac2))
+            //            return RPR.PlentifulHarvest;
+            //        return actionID;
+            //    }
+            //}
+
             // PICTOMANCER
             if (hasFlag(CustomComboPreset.PictoSubtractivePallet))
             {
@@ -1093,112 +838,6 @@ namespace XIVComboPlugin
                     return PCT.StarPrism;
                 return PCT.StarryMotif;
             }
-
-            //VIPER
-            
-            if (hasFlag(CustomComboPreset.ViperDeathLashCombo))
-            {
-                if (actionID == VPR.SteelFangs || actionID == VPR.DreadFangs)
-                    if (JobGauges.Get<VPRGauge>().SerpentCombo == SerpentCombo.DEATHRATTLE)
-                        return VPR.DeathRattle;
-
-                if (actionID == VPR.DreadMaw || actionID == VPR.SteelMaw)
-                    if (JobGauges.Get<VPRGauge>().SerpentCombo == SerpentCombo.LASTLASH)
-                        return VPR.LastLash;
-            }
-
-            if (hasFlag(CustomComboPreset.ViperLegacyCombo))
-            {
-                switch (actionID)
-                {
-                    case VPR.SteelFangs:
-                    case VPR.SteelMaw:
-                        if (JobGauges.Get<VPRGauge>().SerpentCombo == SerpentCombo.FIRSTLEGACY)
-                            return VPR.FirstLegacy;
-                        break;
-
-                    case VPR.DreadFangs:
-                    case VPR.DreadMaw:
-                        if (JobGauges.Get<VPRGauge>().SerpentCombo == SerpentCombo.SECONDLEGACY)
-                            return VPR.SecondLegacy;
-                        break;
-
-                    case VPR.HuntersCoil:
-                    case VPR.HuntersDen:
-                        if (JobGauges.Get<VPRGauge>().SerpentCombo == SerpentCombo.THIRDLEGACY)
-                            return VPR.ThirdLegacy;
-                        break;
-
-                    case VPR.SwiftskinsCoil:
-                    case VPR.SwiftskinsDen:
-                        if (JobGauges.Get<VPRGauge>().SerpentCombo == SerpentCombo.FOURTHLEGACY)
-                            return VPR.FourthLegacy;
-                        break;
-                }
-            }
-
-            if (hasFlag(CustomComboPreset.ViperTwinsCombo))
-            {
-                if (actionID == VPR.UncoiledFury)
-                {
-                    if ((int)JobGauges.Get<VPRGauge>().SerpentCombo == 9)
-                    {
-                        if (SearchBuffArray(VPR.Buffs.PoisedForTwinfang))
-                            return iconHook.Original(self, VPR.Twinfang);
-                        if (SearchBuffArray(VPR.Buffs.PoisedForTwinblood))
-                            return iconHook.Original(self, VPR.Twinblood);
-                        return iconHook.Original(self, actionID);
-                    }
-                }
-
-                switch (actionID)
-                {
-                    case VPR.SwiftskinsCoil:
-                        if ((int)JobGauges.Get<VPRGauge>().SerpentCombo == 7)
-                            return iconHook.Original(self, VPR.Twinblood);
-                        break;
-
-                    case VPR.HuntersCoil:
-                        if ((int)JobGauges.Get<VPRGauge>().SerpentCombo == 7)
-                            return iconHook.Original(self, VPR.Twinfang);
-                        break;
-
-                    case VPR.SwiftskinsDen:
-                        if ((int)JobGauges.Get<VPRGauge>().SerpentCombo == 8)
-                            return iconHook.Original(self, VPR.Twinblood);
-                        break;
-
-                    case VPR.HuntersDen:
-                        if ((int)JobGauges.Get<VPRGauge>().SerpentCombo == 8)
-                            return iconHook.Original(self, VPR.Twinfang);
-                        break;
-                }
-            }
-
-            if (hasFlag(CustomComboPreset.ViperViceCombo))
-            {
-                switch (actionID)
-                {
-                    case VPR.SwiftskinsCoil:
-                    case VPR.HuntersCoil:
-                        {
-                            var gauge = JobGauges.Get<VPRGauge>();
-                            if (gauge.SerpentCombo != SerpentCombo.NONE || gauge.DreadCombo != 0)
-                                return iconHook.Original(self, actionID);
-                            return VPR.Vicewinder;
-                        }
-
-                    case VPR.SwiftskinsDen:
-                    case VPR.HuntersDen:
-                        {
-                            var gauge = JobGauges.Get<VPRGauge>();
-                            if (gauge.SerpentCombo != SerpentCombo.NONE || gauge.DreadCombo != 0)
-                                return iconHook.Original(self, actionID);
-                            return VPR.Vicepit;
-                        }
-                }
-            }
-
             return iconHook.Original(self, actionID);
         }
 

@@ -3,6 +3,16 @@
     public static class DRK
     {
         public const uint
+            // Burst Window
+            LivingShadow = 16472,
+            Shadowbringer = 25757,
+            Disesteem = 36932,
+            SaltedEarth = 3639,
+            SaltAndDarkness = 25755,  // Recast of Salted Earth
+            Impalement = 36931,       // Under Delirium
+            ScarletDelirium = 36928,  // Under Delirium
+            Comeuppance = 36929,      // Under Delirium
+            Torcleaver = 36930,       // Under Delirium
             Souleater = 3632,
             HardSlash = 3617,
             SyphonStrike = 3623,
@@ -21,6 +31,10 @@
             BloodWeapon = 3625,
             Delirium = 7390,
             CarveAndSpit = 3643,
+            Oblation = 25754,
+            ShadowedVigil = 36927,
+            EdgeofShadow = 16470,
+            FloodofShadow = 16469,
             AbyssalDrain = 3641;
 
         public static class Buffs

@@ -9,12 +9,14 @@ using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.ClientState.Statuses;
+using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Gauge;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
 using Lumina.Excel.Sheets;
 using XIVComboPlugin.JobActions;
+using static XIVComboPlugin.IconReplacer;
 
 namespace XIVComboTweaks.Configuration.Helpers
 {
@@ -34,18 +36,26 @@ namespace XIVComboTweaks.Configuration.Helpers
         private ActionManager* actionManager;
         private ITargetManager targetManager;
         private IPlayerCharacter localPlayer;
+        public Hook<OnGetIconDelegate> iconHook;
+        public byte self;
 
         public BRDGauge brdGauge;
         public WARGauge warGauge;
         public WHMGauge whmGauge;
         public SCHGauge schGauge;
+        public DRKGauge dRKGauge;
+        public MNKGauge mnkGauge;
+        public RPRGauge rprGauge;
+        public SMNGauge smnGauge;
+        public GNBGauge gnbGauge;
+        public RDMGauge rdmGauge;
 
-        public static unsafe BaseHelper Get(IPlayerCharacter localPlayer, int l, uint lm, IJobGauges jobGauges, ITargetManager targetManager)
+        public static unsafe BaseHelper Get(IPlayerCharacter localPlayer, int l, uint lm, IJobGauges jobGauges, ITargetManager targetManager, Hook<OnGetIconDelegate> iconHook, byte self)
         {
             if (instance == null)
                 instance = new BaseHelper();
 
-            instance.setValues(localPlayer, l, lm, jobGauges, targetManager);
+            instance.setValues(localPlayer, l, lm, jobGauges, targetManager, iconHook, self);
             return instance;
         }
 
@@ -53,7 +63,7 @@ namespace XIVComboTweaks.Configuration.Helpers
         {
         }
 
-        private unsafe void setValues(IPlayerCharacter localPlayer, int l, uint lm, IJobGauges jobGauges, ITargetManager targetManager)
+        private unsafe void setValues(IPlayerCharacter localPlayer, int l, uint lm, IJobGauges jobGauges, ITargetManager targetManager, Hook<OnGetIconDelegate> iconHook, byte self)
         {
             this.s = localPlayer.StatusList;
             this.mp = localPlayer.CurrentMp;
@@ -62,10 +72,18 @@ namespace XIVComboTweaks.Configuration.Helpers
             this.lastMove = lm;
             this.actionManager = ActionManager.Instance();
             this.targetManager = targetManager;
+            this.iconHook = iconHook;
+            this.self = self;
             this.brdGauge = jobGauges.Get<BRDGauge>();
             this.warGauge = jobGauges.Get<WARGauge>();
             this.whmGauge = jobGauges.Get<WHMGauge>();
             this.schGauge = jobGauges.Get<SCHGauge>();
+            this.dRKGauge = jobGauges.Get<DRKGauge>();
+            this.mnkGauge = jobGauges.Get<MNKGauge>();
+            this.rprGauge = jobGauges.Get<RPRGauge>();
+            this.smnGauge = jobGauges.Get<SMNGauge>();
+            this.gnbGauge = jobGauges.Get<GNBGauge>();
+            this.rdmGauge = jobGauges.Get<RDMGauge>();
         }
 
         public static bool applies(uint move)
@@ -132,6 +150,11 @@ namespace XIVComboTweaks.Configuration.Helpers
         public static bool hasTarget()
         {
             return instance.targetManager.Target is IBattleChara;
+        }
+
+        public static uint original(uint move)
+        {
+            return (uint)instance.iconHook.Original(instance.self, move);
         }
     }
 }

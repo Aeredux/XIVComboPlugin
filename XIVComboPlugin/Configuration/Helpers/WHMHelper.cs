@@ -24,7 +24,7 @@ namespace XIVComboTweaks.Configuration.Helpers
                 case WHM.Cure:
                     if (instance.level >= 35)
                     {
-                        if (!hasTarget())
+                        if (!hasTarget())//didn't account for when targeting enemy and healing self
                         {
                             if (!hasStatus(WHM.Buffs.Regen))
                                 return WHM.Regen;
@@ -44,7 +44,7 @@ namespace XIVComboTweaks.Configuration.Helpers
                         return WHM.Medica2;
                     return WHM.Medica1;
                 case WHM.Stone1:
-                    if (instance.level < 46 && !targetStatus(WHM.Debuffs.Aero) || !targetStatus(WHM.Debuffs.Aero2))
+                    if (instance.level < 46 && !targetStatus(WHM.Debuffs.Aero) || instance.level >= 46 && !targetStatus(WHM.Debuffs.Aero2))
                         return instance.level < 46 ? WHM.Aero : WHM.Aero2;
                     if (instance.level >= 64)
                         return WHM.Stone4;

@@ -9,6 +9,7 @@ namespace XIVComboPlugin.JobActions
     public static class MNK
     {
         public const uint
+            Bloodbath = 7542,
             Bootshine = 53,
             TrueStrike = 54,
             SnapPunch = 56,
@@ -32,6 +33,7 @@ namespace XIVComboPlugin.JobActions
             RiddleOfFire = 7395,
             Brotherhood = 7396,
             RiddleOfWind = 25766,
+            InspiredMeditaion = 36941,
             EnlightenedMeditation = 36943,
             Enlightenment = 16474,
             SixSidedStar = 16476,
@@ -46,18 +48,21 @@ namespace XIVComboPlugin.JobActions
             ElixirBurst = 36948,
             FiresReply = 36950;
 
-        public const ushort
-            TwinSnakesBuff = 101,
-            OpoOpoForm = 107,
-            RaptorForm = 108,
-            CoeurlForm = 109,
-            PerfectBalanceBuff = 110,
-            RiddleOfFireBuff = 1181,
-            RiddleOfWindBuff = 2687,
-            FormlessFist = 2513,
-            TrueNorthBuff = 1250,
-            WindsRumination = 3842,
-            FiresRumination = 3843,
-            BrotherhoodBuff = 1185;
+        public static class Buffs
+        {
+            public const ushort
+                TwinSnakes = 101,
+                OpoOpoForm = 107,
+                RaptorForm = 108,
+                CoeurlForm = 109,
+                PerfectBalance = 110,
+                RiddleOfFire = 1181,
+                RiddleOfWind = 2687,
+                FormlessFist = 2513,
+                TrueNorth = 1250,
+                WindsRumination = 3842,
+                FiresRumination = 3843,
+                Brotherhood = 1185;
+        }
     }
 }

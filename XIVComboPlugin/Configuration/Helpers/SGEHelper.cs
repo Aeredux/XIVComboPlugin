@@ -42,7 +42,7 @@ namespace XIVComboTweaks.Configuration.Helpers
 
         public bool applies(uint move)
         {
-            return move == SGE.Egeiro || move == SGE.Dosis || move == SGE.Dyskrasia || move == SGE.Druochole || move == SGE.LucidDreaming;
+            return move == SGE.Egeiro || move == SGE.Dosis || move == SGE.Dyskrasia || move == SGE.Druochole || move == SGE.Physis;
         }
 
         public uint move(uint move)
@@ -65,7 +65,7 @@ namespace XIVComboTweaks.Configuration.Helpers
                     if (level >= 72)
                         return SGE.Dosis2;
                     return SGE.Dosis;
-                case SGE.LucidDreaming:
+                case SGE.Physis:
                     if (level >= 60 && Ready(SGE.Physis2))
                         return SGE.Physis2;
                     if (level >= 20 && level < 60 && Ready(SGE.Physis))

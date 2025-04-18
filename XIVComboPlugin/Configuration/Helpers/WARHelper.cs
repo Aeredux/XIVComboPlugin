@@ -30,9 +30,9 @@ namespace XIVComboTweaks.Configuration.Helpers
             switch (move)
             {
                 case WAR.HeavySwing:
-                    if (instance.level >= 35 && instance.warGauge.BeastGauge >= 50)
+                    if (instance.level >= 35 && instance.warGauge.BeastGauge >= 50 || instance.level >= 70 && hasStatus(WAR.Buffs.InnerReleaseStacks))
                     {
-                        return instance.level >= 54 ? WAR.FellCleave : WAR.InnerBeast;
+                        return original(WAR.InnerBeast);
                     }
                     if (instance.lastMove == WAR.HeavySwing && instance.level >= 4)
                         return WAR.Maim;
@@ -44,29 +44,29 @@ namespace XIVComboTweaks.Configuration.Helpers
                     }
                     return WAR.HeavySwing;
                 case WAR.Overpower:
-                    if (instance.level >= 35 && instance.warGauge.BeastGauge >= 50)
+                    if (instance.level >= 35 && instance.warGauge.BeastGauge >= 50 || instance.level >= 70 && hasStatus(WAR.Buffs.InnerReleaseStacks))
                     {
-                        return instance.level >= 60 ? WAR.Decimate : instance.level >= 45 ? WAR.SteelCyclone : WAR.InnerBeast;
+                        return instance.level >= 45 ? original(WAR.SteelCyclone) : WAR.InnerBeast;
                     }
                     if (instance.lastMove == WAR.Overpower && instance.level >= 40)
                         return WAR.MythrilTempest;
                     return WAR.Overpower;
                 case WAR.Infuriate:
-                    if (instance.level >= 60 && Charges(WAR.Infuriate) == 2)
-                        return WAR.Infuriate;
-                    if (Ready(WAR.Berserk))
-                        return WAR.Berserk;
+                    if (instance.level < 70 && Ready(WAR.Berserk) || instance.level >= 70 && Ready(WAR.InnerRelease))
+                        return instance.level >= 70 ? WAR.InnerRelease : WAR.Berserk;
+                    if (instance.level >= 64 && Ready(WAR.Upheaval))
+                        return WAR.Upheaval;
                     return WAR.Infuriate;
                 case WAR.RawIntuition:
                     if (instance.level >= 56 && Ready(WAR.RawIntuition))
-                        return WAR.RawIntuition;
+                        return original(WAR.RawIntuition);
                     if (Ready(WAR.Rampart))
                         return WAR.Rampart;
                     if (instance.level >= 30 && Ready(WAR.ThrillOfBattle))
                         return WAR.ThrillOfBattle;
                     if (instance.level >= 30 && Ready(WAR.Vengeance))
-                        return WAR.Vengeance;
-                    return WAR.RawIntuition;
+                        return original(WAR.Vengeance);
+                    return original(WAR.RawIntuition);
                 default:
                     return 0;
             }

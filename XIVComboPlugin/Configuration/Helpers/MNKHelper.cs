@@ -6,120 +6,150 @@ using System.Threading.Tasks;
 using Dalamud.Game.ClientState.JobGauge.Enums;
 using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Statuses;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using Lumina.Excel.Sheets;
 using XIVComboPlugin.JobActions;
 
 namespace XIVComboTweaks.Configuration.Helpers
 {
-    internal class MNKHelper
+    internal unsafe class MNKHelper : BaseHelper
     {
-        private static MNKHelper instance;
-        private MNKGauge g;
-        private StatusList s;
-        private int level;
-        private uint lastMove;
-
-        public static MNKHelper Get(MNKGauge mnkGauge, StatusList statusList, int l, uint lm)
+        private static uint[] moves = { MNK.Bootshine, MNK.ArmOfTheDestroyer, MNK.RiddleOfFire, MNK.RiddleOfEarth, MNK.Mantra, MNK.InspiredMeditaion, MNK.MasterfulBlitz, MNK.PerfectBalance};
+        public static new bool applies(uint move)
         {
-            if (instance == null)
-                instance = new MNKHelper();
-
-            instance.g = mnkGauge;
-            instance.s = statusList;
-            instance.level = l;
-            instance.lastMove = lm;
-            return instance;
+            return moves.Contains<uint>(move);
         }
 
-        public uint SingleTarget()
+        public static new uint move(uint move)
         {
-            if (hasStatus(MNK.PerfectBalanceBuff))
+            switch (move)
             {
-                if (g.Nadi == Nadi.SOLAR)
+                case MNK.Bootshine:
+                    return SingleTarget();
+                case MNK.ArmOfTheDestroyer:
+                    return MultiTarget();
+                case MNK.RiddleOfFire:
+                    if (instance.level >= 70 && Ready(MNK.Brotherhood))
+                        return MNK.Brotherhood; 
+                    return original(MNK.RiddleOfFire);
+                case MNK.RiddleOfEarth:
+                    if (instance.level < 64)
+                        return BRD.SecondWind;
+                    if (Ready(MNK.RiddleOfEarth))
+                        return MNK.RiddleOfEarth;
+                    if (Highlighted(MNK.EarthsReply))
+                        return MNK.EarthsReply;
+                    if (Ready(BRD.SecondWind))
+                        return BRD.SecondWind;
+                    return MNK.RiddleOfEarth;
+                case MNK.PerfectBalance:
+                    if (!instance.mnkGauge.BeastChakra.Contains(BeastChakra.None))
+                        return original(MNK.MasterfulBlitz);
+                    return MNK.PerfectBalance;
+                case MNK.Mantra:
+                    if (instance.level >= 42 && Ready(MNK.Mantra))
+                        return MNK.Mantra;
+                    if (Ready(MNK.Bloodbath))
+                        return MNK.Bloodbath;
+                    return instance.level >= 42 ? MNK.Mantra : MNK.Bloodbath;
+                case MNK.InspiredMeditaion:
+                    return instance.level >= 40 ? original(MNK.InspiredMeditaion) : original(MNK.Meditation);
+                case MNK.MasterfulBlitz:
+                    return MNK.PerfectBalance;
+                default:
+                    return 0;
+            }
+        }
+
+        public static uint SingleTarget()// add in opo move after formless fist, leave option to early masterful blitz on E. same for multi
+        {
+            if (instance.level >= 52 && (hasStatus(MNK.Buffs.FormlessFist) || hasStatus(MNK.Buffs.OpoOpoForm)))
+                return MoveOpo();
+            if (instance.level >= 100 && hasStatus(MNK.Buffs.RaptorForm) && hasStatus(MNK.Buffs.FiresRumination))
+                return MNK.FiresReply;
+            if (instance.level >= 96  && hasStatus(MNK.Buffs.WindsRumination))
+                return MNK.WindsReply;
+            if (!instance.mnkGauge.BeastChakra.Contains(BeastChakra.None))
+                return original(MNK.MasterfulBlitz);
+            if (hasStatus(MNK.Buffs.PerfectBalance))
+            {
+                if (instance.mnkGauge.Nadi == Nadi.Solar)
                 {
                     return MoveOpo();
                 } else
                 {
-                    return MoveBasedOnPrevious();
+                    return FillUniqueChakra();//haseffect solar for even minute phantom rush?
                 }
             } else
             {
-                if (hasStatus(MNK.FormlessFist))
-                {
-                    return MoveOpo();
-                } else
-                {
-                    return MoveForm();
-                }
+                return MoveForm();
             }
         }
 
-        public uint MultiTarget()
+        public static uint MultiTarget()
         {
             uint st = SingleTarget();
+            if (st == MNK.FiresReply) return MNK.FiresReply;
+            if (st == MNK.WindsReply) return MNK.WindsReply;
+            if (!instance.mnkGauge.BeastChakra.Contains(BeastChakra.None))
+                return original(MNK.MasterfulBlitz);
             if (st == MNK.Bootshine || st == MNK.LeapingOpo || st == MNK.DragonKick)
-                return MNK.ArmOfTheDestroyer;
+                return instance.level >= 82 ? MNK.ShadowOfTheDestroyer : instance.level >= 26? MNK.ArmOfTheDestroyer : st;
             if (st == MNK.TwinSnakes || st == MNK.TrueStrike || st == MNK.RisingRaptor)
-                return MNK.FourPointFury;
-            return MNK.Rockbreaker;
+                return instance.level >= 45 ? MNK.FourPointFury : st;
+            return instance.level >= 30 ? MNK.Rockbreaker : st;
         }
-        private uint MoveForm()
+        private static uint MoveForm()
         {
-            if (hasStatus(MNK.RaptorForm))
+            if (hasStatus(MNK.Buffs.RaptorForm))
             {
-                if (g.RaptorFury < 1 && level >= 18)
-                    return MNK.TwinSnakes;
-                return MNK.TrueStrike;
+                if (instance.mnkGauge.RaptorFury < 1 && instance.level >= 18)
+                    return original(MNK.TwinSnakes);
+                return original(MNK.TrueStrike);
             }
-            else if (hasStatus(MNK.CoeurlForm))
+            else if (hasStatus(MNK.Buffs.CoeurlForm))
             {
-                if (g.CoeurlFury < 1 && level >= 30)
-                    return MNK.Demolish;
-                return MNK.SnapPunch;
+                if (instance.mnkGauge.CoeurlFury < 1 && instance.level >= 30)
+                    return original(MNK.Demolish);
+                return original(MNK.SnapPunch);
             }
             else
             {
-                if (g.OpoOpoFury < 1 && level >= 50)
-                    return MNK.DragonKick;
-                return MNK.Bootshine;
+                if (instance.mnkGauge.OpoOpoFury < 1 && instance.level >= 50)
+                    return original(MNK.DragonKick);
+                return original(MNK.Bootshine);
             }
         }
 
-        private uint MoveOpo()
+        private static uint MoveOpo()
         {
-            if (g.OpoOpoFury < 1 && level >= 50)
-                return MNK.DragonKick;
-            return MNK.Bootshine;
+            if (instance.mnkGauge.OpoOpoFury < 1 && instance.level >= 50)
+                return original(MNK.DragonKick);
+            return original(MNK.Bootshine);
+        }
+        private static uint MoveRaptor()
+        {
+            if (instance.mnkGauge.RaptorFury < 1 && instance.level >= 18)
+                return original(MNK.TwinSnakes);
+            return original(MNK.TrueStrike);
         }
 
-        private uint MoveBasedOnPrevious()
+        private static uint MoveCoeurl()
         {
-            if (lastMove == MNK.DragonKick || lastMove == MNK.Bootshine || lastMove == MNK.LeapingOpo || lastMove == MNK.ArmOfTheDestroyer)
-            {
-                if (g.RaptorFury < 1 && level >= 18)
-                    return MNK.TwinSnakes;
-                return MNK.TrueStrike;
-            }
-            else if (lastMove == MNK.TwinSnakes || lastMove == MNK.TrueStrike || lastMove == MNK.RisingRaptor || lastMove == MNK.FourPointFury)
-            {
-                if (g.CoeurlFury < 1 && level >= 30)
-                    return MNK.Demolish;
-                return MNK.SnapPunch;
-            }
-            else
-            {
-                if (g.OpoOpoFury < 1 && level >= 50)
-                    return MNK.DragonKick;
-                return MNK.Bootshine;
-            }
+            if (instance.mnkGauge.RaptorFury < 1 && instance.level >= 30)
+                return original(MNK.Demolish);
+            return original(MNK.SnapPunch);
         }
 
-        private bool hasStatus(ushort x)
+        private static uint FillUniqueChakra()
         {
-            for (var i = 0; i < s.Length; i++)
-                if (s[i].StatusId == x)
-                    return true;
-            return false;
+            if (!instance.mnkGauge.BeastChakra.Contains(BeastChakra.OpoOpo))
+                return MoveOpo();
+            if (!instance.mnkGauge.BeastChakra.Contains(BeastChakra.Raptor))
+                return MoveRaptor();
+            if (!instance.mnkGauge.BeastChakra.Contains(BeastChakra.Coeurl))
+                return MoveCoeurl();
+            return MoveOpo();
         }
     }
 }

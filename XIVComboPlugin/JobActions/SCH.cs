@@ -46,7 +46,8 @@
             Aetherflow = 166,
             Recitation = 16542,
             ChainStratagem = 7436,
-            DeploymentTactics = 3585;
+            DeploymentTactics = 3585,
+            Expedient = 25868;
 
         public static class Buffs
         {
