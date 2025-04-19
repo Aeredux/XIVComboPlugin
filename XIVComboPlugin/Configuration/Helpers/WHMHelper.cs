@@ -58,7 +58,7 @@ namespace XIVComboTweaks.Configuration.Helpers
                         return SCH.Swiftcast;
                     return WHM.Raise;
                 case WHM.Assize:
-                    if (instance.level >= 52 && Ready(WHM.Assize))
+                    if (instance.level >= 56 && Ready(WHM.Assize))
                         return WHM.Assize;
                     if (instance.level >= 60 && Ready(WHM.Tetragrammaton))
                         return WHM.Tetragrammaton;
