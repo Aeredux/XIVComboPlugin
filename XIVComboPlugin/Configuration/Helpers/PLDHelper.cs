@@ -53,8 +53,8 @@ namespace XIVComboTweaks.Configuration.Helpers
         {
             if (instance.level >= 54 && hasStatus(PLD.Buffs.GoringBladeReady))
                 return PLD.GoringBlade;
-            if (instance.level >= 26 && Highlighted(PLD.RageOfHalone))
-                return PLD.RageOfHalone;
+            if (instance.level >= 26 && Highlighted(original(PLD.RageOfHalone)))
+                return original(PLD.RageOfHalone);
             if (Highlighted(PLD.RiotBlade))
                 return PLD.RiotBlade;
             return PLD.FastBlade;

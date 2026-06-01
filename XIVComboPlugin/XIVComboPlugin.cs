@@ -3,7 +3,7 @@ using Dalamud.Plugin;
 using System;
 using System.Linq;
 using System.Numerics;
-using ImGuiNET;
+//using ImGuiNET;
 using Dalamud.Game;
 using Dalamud.Utility;
 using Dalamud.IoC;
@@ -11,6 +11,7 @@ using Dalamud.Plugin.Services;
 using Dalamud.Interface.Utility;
 using Dalamud.Game.Network.Structures.InfoProxy;
 using Dalamud.Game.ClientState.Objects;
+using Dalamud.Bindings.ImGui;
 
 namespace XIVComboPlugin
 {

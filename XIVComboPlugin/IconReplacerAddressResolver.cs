@@ -1,5 +1,6 @@
 ﻿
 using Dalamud.Game;
+using Dalamud.Plugin.Services;
 using System;
 
 namespace XIVComboPlugin

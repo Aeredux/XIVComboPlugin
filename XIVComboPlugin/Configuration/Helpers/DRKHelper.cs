@@ -11,7 +11,7 @@ namespace XIVComboTweaks.Configuration.Helpers
 {
     internal class DRKHelper : BaseHelper
     {
-        private static uint[] moves = { DRK.DarkMind, DRK.HardSlash, DRK.EdgeofDarkness, DRK.Unleash, DRK.FloodofDarkness };
+        private static uint[] moves = { DRK.ShadowedVigil, DRK.HardSlash, DRK.EdgeofDarkness, DRK.Unleash, DRK.FloodofDarkness};
         public static new bool applies(uint move)
         {
             return moves.Contains<uint>(move);
@@ -21,7 +21,7 @@ namespace XIVComboTweaks.Configuration.Helpers
         {
             switch (move)
             {
-                case DRK.DarkMind:
+                case DRK.ShadowedVigil:
                     if (instance.level >= 45 && Ready(DRK.DarkMind))
                     {
                         return DRK.DarkMind;
@@ -34,10 +34,10 @@ namespace XIVComboTweaks.Configuration.Helpers
                     {
                         return DRK.Rampart;
                     }
-                    if (instance.level >= 66 && Ready(DRK.DarkMissionary))
-                    {
-                        return DRK.DarkMissionary;
-                    }
+                    //if (instance.level >= 66 && Ready(DRK.DarkMissionary))
+                    //{
+                    //    return DRK.DarkMissionary;
+                    //}
                     if (instance.level >= 38 && Ready(DRK.ShadowWall))
                     {
                         return instance.level >= 92 ? DRK.ShadowedVigil : DRK.ShadowWall;

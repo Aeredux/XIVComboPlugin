@@ -14,7 +14,7 @@ namespace XIVComboTweaks.Configuration.Helpers
 {
     internal unsafe class RDMHelper : BaseHelper
     {
-        private static uint[] moves = { RDM.Jolt, RDM.Riposte, RDM.Scatter, RDM.Fleche};
+        private static uint[] moves = { RDM.Jolt2, RDM.Riposte, RDM.Impact, RDM.Fleche, RDM.Verraise, RDM.Acceleration};
         public static new bool applies(uint move)
         {
             return moves.Contains<uint>(move);
@@ -24,14 +24,22 @@ namespace XIVComboTweaks.Configuration.Helpers
         {
             switch (move)
             {
-                case RDM.Jolt:
+                case RDM.Jolt2:
                     return SingleTargetSpell();
                 case RDM.Riposte:
                     return SingleTarget();
-                case RDM.Scatter:
+                case RDM.Impact:
                     return MultiTarget();
                 case RDM.Fleche:
                     return Instant();
+                case RDM.Verraise:
+                    if (hasFastCast())
+                        return RDM.Verraise;
+                    if (Ready(SCH.Swiftcast))
+                        return SCH.Swiftcast;
+                    return RDM.Verraise;
+                case RDM.Acceleration:
+                    return Buffs();
                 default:
                     return 0;
             }
@@ -39,15 +47,19 @@ namespace XIVComboTweaks.Configuration.Helpers
 
         public static uint SingleTargetSpell()
         {
+            if (Highlighted(RDM.Scorch))
+                return RDM.Scorch;
+            if (instance.level >= 68 && instance.rdmGauge.ManaStacks >= 3)
+                return instance.level >= 70 ? LessWhite() ? original(RDM.Veraero) : original(RDM.Verthunder) : original(RDM.Verthunder);
+            if (hasFastCast())
+            {
+                return LessWhite() ? original(RDM.Veraero) : original(RDM.Verthunder);
+            }
             if (instance.level >= 30 && hasStatus(RDM.Buffs.VerstoneReady))
                 return RDM.Verstone;
             if (instance.level >= 26 && hasStatus(RDM.Buffs.VerfireReady))
                 return RDM.Verfire;
-            if (hasStatus(RDM.Buffs.Acceleration) || hasStatus(RDM.Buffs.Dualcast))
-            {
-                return LessWhite() ? RDM.Veraero : RDM.Verthunder;
-            }
-            return RDM.Jolt;
+            return original(RDM.Jolt);
         }
 
         public static uint SingleTarget()
@@ -61,12 +73,16 @@ namespace XIVComboTweaks.Configuration.Helpers
 
         public static uint MultiTarget()
         {
-            if (hasStatus(RDM.Buffs.Dualcast) || hasStatus(RDM.Buffs.Acceleration))
-                return RDM.Scatter;
+            if (Highlighted(RDM.Scorch))
+                return RDM.Scorch;
+            if (instance.level >= 68 && instance.rdmGauge.ManaStacks >= 3)
+                return instance.level >= 70 ? LessWhite() ? original(RDM.Veraero) : original(RDM.Verthunder) : original(RDM.Verthunder);
+            if (hasFastCast())
+                return original(RDM.Scatter);
             if (instance.level >= 22 && LessWhite())
-                return RDM.Veraero2;
+                return original(RDM.Veraero2);
             if (instance.level >= 18 && !LessWhite())
-                return RDM.Verthunder2;
+                return original(RDM.Verthunder2);
             return RDM.Jolt;
         }
 
@@ -74,6 +90,8 @@ namespace XIVComboTweaks.Configuration.Helpers
         {
             if (instance.level >= 45 && Ready(RDM.Fleche))
                 return original(RDM.Fleche);
+            if (instance.level >= 56 && Ready(RDM.ContreSixte))
+                return original(RDM.ContreSixte);
             if (Charges(RDM.Engagement) > 0 || instance.level < 45)
                 return original(RDM.Engagement);
             return RDM.Fleche;
@@ -82,6 +100,20 @@ namespace XIVComboTweaks.Configuration.Helpers
         private static bool LessWhite()
         {
             return instance.rdmGauge.WhiteMana < instance.rdmGauge.BlackMana;
+        }
+
+        private static bool hasFastCast()
+        {
+            return hasStatus(RDM.Buffs.Dualcast) || hasStatus(RDM.Buffs.Acceleration) || hasStatus(RDM.Buffs.SwiftCast);
+        }
+
+        private static uint Buffs()
+        {
+            if (instance.level >= 58 && Ready(RDM.Embolden))
+                return original(RDM.Embolden);
+            if (instance.level >= 60 && Ready(RDM.Manafication))
+                return RDM.Manafication;
+            return RDM.Acceleration;
         }
     }
 }

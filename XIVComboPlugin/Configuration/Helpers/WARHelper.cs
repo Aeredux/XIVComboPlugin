@@ -22,7 +22,7 @@ namespace XIVComboTweaks.Configuration.Helpers
     {
         public static new bool applies(uint move)
         {
-            return move == WAR.HeavySwing || move == WAR.Overpower || move == WAR.Infuriate || move == WAR.RawIntuition;
+            return move == WAR.HeavySwing || move == WAR.Overpower || move == WAR.Upheaval || move == WAR.Orogeny || move == WAR.BloodWhetting;
         }
 
         public static new uint move(uint move)
@@ -51,14 +51,22 @@ namespace XIVComboTweaks.Configuration.Helpers
                     if (instance.lastMove == WAR.Overpower && instance.level >= 40)
                         return WAR.MythrilTempest;
                     return WAR.Overpower;
-                case WAR.Infuriate:
+                case WAR.Upheaval:
                     if (instance.level < 70 && Ready(WAR.Berserk) || instance.level >= 70 && Ready(WAR.InnerRelease))
                         return instance.level >= 70 ? WAR.InnerRelease : WAR.Berserk;
                     if (instance.level >= 64 && Ready(WAR.Upheaval))
                         return WAR.Upheaval;
                     return WAR.Infuriate;
-                case WAR.RawIntuition:
-                    if (instance.level >= 56 && Ready(WAR.RawIntuition))
+                case WAR.Orogeny:
+                    if (instance.level < 70 && Ready(WAR.Berserk) || instance.level >= 70 && Ready(WAR.InnerRelease))
+                        return instance.level >= 70 ? WAR.InnerRelease : WAR.Berserk;
+                    if (instance.level >= 82 && Ready(WAR.Orogeny))
+                        return WAR.Orogeny;
+                    if (instance.level >= 64 && Ready(WAR.Upheaval))
+                        return WAR.Upheaval;
+                    return WAR.Infuriate;
+                case WAR.BloodWhetting:
+                    if (instance.level >= 56 && Ready(original(WAR.RawIntuition)))
                         return original(WAR.RawIntuition);
                     if (Ready(WAR.Rampart))
                         return WAR.Rampart;

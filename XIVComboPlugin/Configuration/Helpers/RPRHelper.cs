@@ -14,7 +14,7 @@ namespace XIVComboTweaks.Configuration.Helpers
 {
     internal unsafe class RPRHelper : BaseHelper
     {
-        private static uint[] moves = { RPR.Slice, RPR.SpinningScythe, RPR.GrimSwathe};
+        private static uint[] moves = { RPR.Slice, RPR.SpinningScythe, RPR.GrimSwathe, RPR.HellsEgress, RPR.HellsIngress};
         public static new bool applies(uint move)
         {
             return moves.Contains<uint>(move);
@@ -32,6 +32,11 @@ namespace XIVComboTweaks.Configuration.Helpers
                     if (instance.level < 55)
                         return RPR.BloodStalk;
                     return RPR.GrimSwathe;
+                case RPR.HellsIngress:
+                case RPR.HellsEgress:
+                    if (instance.level >= 74 && Highlighted(RPR.Regress))
+                        return RPR.Regress;
+                    return move;
                 default:
                     return 0;
             }
@@ -64,7 +69,7 @@ namespace XIVComboTweaks.Configuration.Helpers
             }
             if (instance.level >= 60 && Ready(RPR.SoulScythe) && instance.rprGauge.Soul <= 50)
                 return instance.level >= 65 ? RPR.SoulScythe : RPR.SoulSlice;
-            if (targetStatusTime(RPR.Debuffs.DeathsDesign) < 10)
+            if (instance.level >= 35 && targetStatusTime(RPR.Debuffs.DeathsDesign) < 10)
                 return RPR.WhorlOfDeath;
             if (instance.level >= 45 && Highlighted(RPR.NightmareScythe))
                 return RPR.NightmareScythe;

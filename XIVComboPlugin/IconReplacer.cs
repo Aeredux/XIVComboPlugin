@@ -91,7 +91,7 @@ namespace XIVComboPlugin
             return Configuration.ComboPresets[(int)preset];
         }
 
-        // I hate this function. This is the dumbest function to exist in the game. Just return 1.
+        // I hate this function. This is the dumbest function to exist in the game. Just return 1
         // Determines which abilities are allowed to have their icons updated.
 
         private ulong CheckIsIconReplaceableDetour(uint actionID)
@@ -368,35 +368,37 @@ namespace XIVComboPlugin
 
             // Replace Clean Shot with Heated Clean Shot combo
             // Or with Heat Blast when overheated.
-            if (hasFlag(CustomComboPreset.MachinistMainCombo))
-                if (actionID == MCH.CleanShot || actionID == MCH.HeatedCleanShot)
-                {
-                    if (lastMove == MCH.SplitShot && level >= 2)
-                        return iconHook.Original(self, MCH.SlugShot);
-                    if (lastMove == MCH.SlugShot && level >= 26)
-                        return iconHook.Original(self, MCH.CleanShot);
-                    return iconHook.Original(self, MCH.SplitShot);
-                }
+            if (MCHHelper.applies(actionID))
+                return MCHHelper.move(actionID);
+            //if (hasFlag(CustomComboPreset.MachinistMainCombo))
+            //    if (actionID == MCH.CleanShot || actionID == MCH.HeatedCleanShot)
+            //    {
+            //        if (lastMove == MCH.SplitShot && level >= 2)
+            //            return iconHook.Original(self, MCH.SlugShot);
+            //        if (lastMove == MCH.SlugShot && level >= 26)
+            //            return iconHook.Original(self, MCH.CleanShot);
+            //        return iconHook.Original(self, MCH.SplitShot);
+            //    }
 
 
-            // Replace Hypercharge with Heat Blast when overheated
-            if (hasFlag(CustomComboPreset.MachinistOverheatFeature))
-                if (actionID == MCH.Hypercharge)
-                {
-                    var gauge = JobGauges.Get<MCHGauge>();
-                    if (gauge.IsOverheated)
-                        if (level >= 35) return iconHook.Original(self, MCH.HeatBlast);
-                    return MCH.Hypercharge;
-                }
+            //// Replace Hypercharge with Heat Blast when overheated
+            //if (hasFlag(CustomComboPreset.MachinistOverheatFeature))
+            //    if (actionID == MCH.Hypercharge)
+            //    {
+            //        var gauge = JobGauges.Get<MCHGauge>();
+            //        if (gauge.IsOverheated)
+            //            if (level >= 35) return iconHook.Original(self, MCH.HeatBlast);
+            //        return MCH.Hypercharge;
+            //    }
 
-            // Replace Spread Shot with Auto Crossbow when overheated.
-            if (hasFlag(CustomComboPreset.MachinistSpreadShotFeature))
-                if (actionID == MCH.SpreadShot || actionID == MCH.Scattergun)
-                {
-                    if (JobGauges.Get<MCHGauge>().IsOverheated && level >= 52)
-                        return MCH.AutoCrossbow;
-                    return iconHook.Original(self, MCH.SpreadShot);
-                }
+            //// Replace Spread Shot with Auto Crossbow when overheated.
+            //if (hasFlag(CustomComboPreset.MachinistSpreadShotFeature))
+            //    if (actionID == MCH.SpreadShot || actionID == MCH.Scattergun)
+            //    {
+            //        if (JobGauges.Get<MCHGauge>().IsOverheated && level >= 52)
+            //            return MCH.AutoCrossbow;
+            //        return iconHook.Original(self, MCH.SpreadShot);
+            //    }
 
             // BLACK MAGE
 
@@ -439,16 +441,8 @@ namespace XIVComboPlugin
 
             // ASTROLOGIAN
             // Change Play 1/2/3 to Astral/Umbral Draw if that Play action doesn't have a card ready to be played.
-            if (hasFlag(CustomComboPreset.AstrologianCardsOnDrawFeature))
-            {
-                if (actionID == AST.MinorArcana)
-                {
-                    var x = iconHook.Original(self, actionID);
-                    if (x != AST.MinorArcana && level >= 70)
-                        return x;
-                    return iconHook.Original(self, AST.AstralDraw);
-                }
-            }
+            if (ASTHelper.applies(actionID))
+                return ASTHelper.move(actionID);
 
             // SUMMONER
             //SummonerOneKeyCombo
@@ -783,28 +777,28 @@ namespace XIVComboPlugin
             // PICTOMANCER
             if (hasFlag(CustomComboPreset.PictoSubtractivePallet))
             {
-                if (actionID == PCT.Fire1)
+                if (actionID == PCT.FireInRed)
                 {
-                    if (SearchBuffArray(PCT.SubPallet))
-                        return iconHook.Original(self, PCT.Bliz1);
-                    return iconHook.Original(self, PCT.Fire1);
+                    if (SearchBuffArray(PCT.Buffs.SubtractivePalette))
+                        return iconHook.Original(self, PCT.BlizzardinCyan);
+                    return iconHook.Original(self, PCT.FireInRed);
                 }
 
-                if (actionID == PCT.Fire2)
+                if (actionID == PCT.FireIIinRed)
                 {
-                    if (SearchBuffArray(PCT.SubPallet))
-                        return iconHook.Original(self, PCT.Bliz2);
-                    return iconHook.Original(self, PCT.Fire2);
+                    if (SearchBuffArray(PCT.Buffs.SubtractivePalette))
+                        return iconHook.Original(self, PCT.BlizzardIIinCyan);
+                    return iconHook.Original(self, PCT.FireIIinRed);
                 }
             }
 
             if (hasFlag(CustomComboPreset.PictoHolyWhiteCombo))
             {
-                if (actionID == PCT.HolyWhite)
+                if (actionID == PCT.HolyInWhite)
                 {
-                    if (SearchBuffArray(PCT.Monochrome))
-                        return PCT.CometBlack;
-                    return PCT.HolyWhite;
+                    if (SearchBuffArray(PCT.Buffs.MonochromeTones))
+                        return PCT.CometinBlack;
+                    return PCT.HolyInWhite;
                 }
             }
 
@@ -824,7 +818,7 @@ namespace XIVComboPlugin
                 var PCTGauge = JobGauges.Get<PCTGauge>();
                 if (pictoMuseEnabled && PCTGauge.WeaponMotifDrawn)
                     return iconHook.Original(self, PCT.SteelMuse);
-                if (pictoFollowUpEnabled && SearchBuffArray(PCT.HammerReady))
+                if (pictoFollowUpEnabled && SearchBuffArray(PCT.Buffs.HammerTime))
                     return iconHook.Original(self, PCT.HammerStamp);
                 return iconHook.Original(self, actionID);
             }
@@ -834,9 +828,9 @@ namespace XIVComboPlugin
                 var PCTGauge = JobGauges.Get<PCTGauge>();
                 if (pictoMuseEnabled && PCTGauge.LandscapeMotifDrawn)
                     return PCT.StarryMuse;
-                if (pictoFollowUpEnabled && SearchBuffArray(PCT.StarStruck))
+                if (pictoFollowUpEnabled && SearchBuffArray(PCT.Buffs.Starstruck))
                     return PCT.StarPrism;
-                return PCT.StarryMotif;
+                return PCT.StarryMuse;
             }
             return iconHook.Original(self, actionID);
         }

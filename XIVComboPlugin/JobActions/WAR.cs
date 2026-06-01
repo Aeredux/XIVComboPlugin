@@ -21,6 +21,7 @@
             Upheaval = 7387,
             InnerRelease = 7389,
             RawIntuition = 3551,
+            BloodWhetting = 25751,
             MythrilTempest = 16462,
             ChaoticCyclone = 16463,
             NascentFlash = 16464,

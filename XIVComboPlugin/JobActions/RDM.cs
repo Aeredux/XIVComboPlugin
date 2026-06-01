@@ -51,6 +51,7 @@
         public static class Buffs
         {
             public const ushort
+                SwiftCast = 167,
                 VerfireReady = 1234,
                 VerstoneReady = 1235,
                 Dualcast = 1249,

@@ -8,6 +8,7 @@ using Dalamud.Game.ClientState.JobGauge.Types;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.ClientState.Party;
 using Dalamud.Game.ClientState.Statuses;
 using Dalamud.Hooking;
 using Dalamud.Plugin.Services;
@@ -49,6 +50,8 @@ namespace XIVComboTweaks.Configuration.Helpers
         public SMNGauge smnGauge;
         public GNBGauge gnbGauge;
         public RDMGauge rdmGauge;
+        public MCHGauge mchGauge;
+        public ASTGauge astGauge;
 
         public static unsafe BaseHelper Get(IPlayerCharacter localPlayer, int l, uint lm, IJobGauges jobGauges, ITargetManager targetManager, Hook<OnGetIconDelegate> iconHook, byte self)
         {
@@ -84,17 +87,24 @@ namespace XIVComboTweaks.Configuration.Helpers
             this.smnGauge = jobGauges.Get<SMNGauge>();
             this.gnbGauge = jobGauges.Get<GNBGauge>();
             this.rdmGauge = jobGauges.Get<RDMGauge>();
+            this.mchGauge = jobGauges.Get<MCHGauge>();
+            this.astGauge = jobGauges.Get<ASTGauge>();
         }
 
-        public static bool applies(uint move)
-        {
-            return false;
-        }
+        //public static bool applies(uint move)
+        //{
+        //    return false;
+        //}
 
-        public uint move(uint move)
-        {
-            return 0;
-        }
+        //public static uint move(uint move)
+        //{
+        //    return original(move0(move));
+        //}
+
+        //public static uint move0(uint move)
+        //{
+        //    return 0;
+        //}
 
         public static bool hasStatus(ushort x)
         {
@@ -114,17 +124,17 @@ namespace XIVComboTweaks.Configuration.Helpers
 
         public static unsafe bool Highlighted(uint action)
         {
-            return instance.actionManager->IsActionHighlighted(ActionType.Action, action);
+            return instance.actionManager->IsActionHighlighted(ActionType.Action, original(action));
         }
 
         public static unsafe bool Ready(uint action)
         {
-            return instance.actionManager->IsActionOffCooldown(ActionType.Action, action);
+            return instance.actionManager->IsActionOffCooldown(ActionType.Action, original(action));
         }
 
         public static unsafe uint Charges(uint action)
         {
-            return instance.actionManager->GetCurrentCharges(action);
+            return instance.actionManager->GetCurrentCharges(original(action));
         }
 
         public static bool targetStatus(ushort x)
@@ -145,6 +155,11 @@ namespace XIVComboTweaks.Configuration.Helpers
                 if (chara.StatusList[i].StatusId == x && chara.StatusList[i].SourceId == instance.localPlayer.EntityId)
                     return chara.StatusList[i].RemainingTime;
             return 0;
+        }
+
+        public static bool targetIsPlayer()
+        {
+            return !(instance.targetManager.Target is IBattleNpc);
         }
 
         public static bool hasTarget()

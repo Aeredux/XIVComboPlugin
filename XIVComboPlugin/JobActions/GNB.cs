@@ -7,6 +7,7 @@
             Rampart = 7531,
             Nebula = 16148,
             HeartOfStone = 16161,
+            HeartOfCorundum = 25758,
             KeenEdge = 16137,
             NoMercy = 16138,
             BrutalShell = 16139,

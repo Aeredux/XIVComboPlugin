@@ -1,10 +1,10 @@
-﻿<Project Sdk="Dalamud.NET.Sdk/12.0.2">
+﻿<Project Sdk="Dalamud.NET.Sdk/14.0.0">
   <PropertyGroup Label="Target">
     <PlatformTarget>x64</PlatformTarget>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Platforms>x64</Platforms>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
   <PropertyGroup Label="Build">
     <OutputType>Library</OutputType>
@@ -30,4 +30,8 @@
     <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
     <BaseOutputPath>C:\GitHub\Zookins</BaseOutputPath>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Update="DalamudPackager" Version="14.0.1" />
+    <PackageReference Update="DotNet.ReproducibleBuilds" Version="1.2.39" />
+  </ItemGroup>
 </Project>

@@ -3,57 +3,59 @@
     public static class PCT
     {
         public const uint
+             BlizzardinCyan = 34653,
+             StoneinYellow = 34654,
+             BlizzardIIinCyan = 34659,
+             ClawMotif = 34666,
+             ClawedMuse = 34672,
+             CometinBlack = 34663,
+             CreatureMotif = 34689,
+             FireInRed = 34650,
+             AeroInGreen = 34651,
+             WaterInBlue = 34652,
+             FireIIinRed = 34656,
+             AeroIIinGreen = 34657,
+             HammerMotif = 34668,
+             WingedMuse = 34671,
+             StrikingMuse = 34674,
+             StarryMuse = 34675,
+             HammerStamp = 34678,
+             HammerBrush = 34679,
+             PolishingHammer = 34680,
+             HolyInWhite = 34662,
+             StarrySkyMotif = 34669,
+             LandscapeMotif = 34691,
+             LivingMuse = 35347,
+             MawMotif = 34667,
+             MogoftheAges = 34676,
+             PomMotif = 34664,
+             PomMuse = 34670,
+             RainbowDrip = 34688,
+             RetributionoftheMadeen = 34677,
+             ScenicMuse = 35349,
+             Smudge = 34684,
+             StarPrism = 34681,
+             SteelMuse = 35348,
+             SubtractivePalette = 34683,
+             StoneIIinYellow = 34660,
+             ThunderIIinMagenta = 34661,
+             ThunderinMagenta = 34655,
+             WaterinBlue = 34652,
+             WeaponMotif = 34690,
+             WingMotif = 34665;
 
-            Fire1 = 34650,
-            Aero1 = 34651,
-            Water1 = 34652,
-            Fire2 = 34656,
-            Aero2 = 34657,
-            Water2 = 34658,
-
-            Bliz1 = 34653,
-            Stone1 = 34654,
-            Thunder1 = 34655,
-            Bliz2 = 34659,
-            Stone2 = 34660,
-            Thunder2 = 34661,
-
-            CreatureMotif = 34689,
-            PomMotif = 34664,
-            WingMotif = 34665,
-            ClawMotif = 34666,
-            MawMotif = 34667,
-            PomMuse = 34670,
-            WingMuse = 34671,
-            ClawMuse = 34672,
-            FangMuse = 34673,
-            MogOfTheAges = 34676,
-
-            WeaponMotif = 34690,
-            StrikingMuse = 34674,
-            HammerStamp = 34678,
-            HammerBrush = 34679,
-            HammerPolish = 34680,
-            
-            LivingMuse = 35347,
-            SteelMuse = 35348,
-            ScenicMuse = 35349,
-
-            LandscapeMotif = 34691,
-            StarryMuse = 34675,
-            StarryMotif = 34669,
-
-            StarPrism = 34681,
-
-            HolyWhite = 34662,
-            CometBlack = 34663;
-
-        public const ushort
-            SubPallet = 3674,
-            HammerReady = 3680,
-            StarStruck = 3681,
-            Aether1 = 3675,
-            Aether2 = 3676,
-            Monochrome = 3691;
+        public static class Buffs
+        {
+            public const ushort
+                SubtractivePalette = 3674,
+                RainbowBright = 3679,
+                HammerTime = 3680,
+                MonochromeTones = 3691,
+                StarryMuse = 3685,
+                Hyperphantasia = 3688,
+                Inspiration = 3689,
+                SubtractiveSpectrum = 3690,
+                Starstruck = 3681;
+        }
     }
 }

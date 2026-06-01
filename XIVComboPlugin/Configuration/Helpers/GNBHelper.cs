@@ -14,7 +14,7 @@ namespace XIVComboTweaks.Configuration.Helpers
 {
     internal unsafe class GNBHelper : BaseHelper
     {
-        private static uint[] moves = { GNB.KeenEdge, GNB.DemonSlice, GNB.Camouflage, GNB.NoMercy};
+        private static uint[] moves = { GNB.KeenEdge, GNB.DemonSlice, GNB.NoMercy, GNB.HeartOfCorundum};
         public static new bool applies(uint move)
         {
             return moves.Contains<uint>(move);
@@ -28,14 +28,16 @@ namespace XIVComboTweaks.Configuration.Helpers
                     return SingleTarget();
                 case GNB.DemonSlice:
                     return MultiTarget();
-                case GNB.Camouflage:
+                case GNB.HeartOfCorundum:
+                    if (instance.level >= 68 && Ready(GNB.HeartOfStone))
+                        return original(GNB.HeartOfStone);
                     if (Ready(GNB.Camouflage))
                         return GNB.Camouflage;
                     if (Ready(GNB.Rampart))
                         return GNB.Rampart;
                     if (instance.level >= 38 && Ready(GNB.Nebula))
-                        return GNB.Nebula;
-                    return GNB.Camouflage;
+                        return original(GNB.Nebula);
+                    return instance.level >= 68 ? original(GNB.HeartOfStone) : GNB.Camouflage;
                 case GNB.NoMercy:
                     return Instant();
                 default:
@@ -47,6 +49,8 @@ namespace XIVComboTweaks.Configuration.Helpers
         {
             if (Ready(GNB.NoMercy))
                 return GNB.NoMercy;
+            if (instance.level >= 70 && Highlighted(original(GNB.Continuation)))
+                return original(GNB.Continuation);
             if (instance.level >= 30 && Ready(GNB.DangerZone))
                 return GNB.DangerZone;
             if (instance.level >= 62 && Ready(GNB.BowShock))
@@ -60,17 +64,9 @@ namespace XIVComboTweaks.Configuration.Helpers
                 return GNB.SonicBreak;
             if (instance.level >= 60)
             {
-                if (Highlighted(GNB.GnashingFang) && Ready(GNB.GnashingFang))
+                if (Highlighted(original(GNB.GnashingFang)) && Ready(original(GNB.GnashingFang)))
                 {
-                    return GNB.GnashingFang;
-                }
-                if (Highlighted(GNB.SavageClaw))
-                {
-                    return GNB.SavageClaw;
-                }
-                if (Highlighted(GNB.WickedTalon))
-                {
-                    return GNB.WickedTalon;
+                    return original(GNB.GnashingFang);
                 }
             }
             if (instance.gnbGauge.Ammo > 0)
