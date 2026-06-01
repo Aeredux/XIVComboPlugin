@@ -26,6 +26,7 @@ namespace XIVComboPlugin
         private readonly IconReplacerAddressResolver Address;
         private readonly Hook<OnCheckIsIconReplaceableDelegate> checkerHook;
         private readonly IClientState clientState;
+        private readonly IObjectTable objectTable;
 
         private IntPtr comboTimer = IntPtr.Zero;
         private IntPtr lastComboMove = IntPtr.Zero;
@@ -41,11 +42,12 @@ namespace XIVComboPlugin
 
         private unsafe delegate int* getArray(long* address);
 
-        public IconReplacer(ISigScanner scanner, IClientState clientState, IDataManager manager, XIVComboConfiguration configuration, IGameInteropProvider hookProvider, IJobGauges jobGauges, IPluginLog pluginLog, ITargetManager targetManager)
+        public IconReplacer(ISigScanner scanner, IClientState clientState, IObjectTable objectTable, IDataManager manager, XIVComboConfiguration configuration, IGameInteropProvider hookProvider, IJobGauges jobGauges, IPluginLog pluginLog, ITargetManager targetManager)
         {
             HookProvider = hookProvider;
             Configuration = configuration;
             this.clientState = clientState;
+            this.objectTable = objectTable;
             this.targetManager = targetManager;
             JobGauges = jobGauges;
             PluginLog = pluginLog;
@@ -110,7 +112,8 @@ namespace XIVComboPlugin
         /// </summary>
         private unsafe ulong GetIconDetour(byte self, uint actionID)
         {
-            if (clientState.LocalPlayer == null) return iconHook.Original(self, actionID);
+            var localPlayer = objectTable.LocalPlayer;
+            if (localPlayer == null) return iconHook.Original(self, actionID);
             // Last resort. For some reason GetIcon fires after leaving the lobby but before ClientState.Login
             if (lastComboMove == IntPtr.Zero)
             {
@@ -125,9 +128,9 @@ namespace XIVComboPlugin
 
             uint lastMove = (uint)Marshal.ReadInt32(lastComboMove);
             var comboTime = Marshal.PtrToStructure<float>(comboTimer);
-            var level = clientState.LocalPlayer.Level;
+            var level = localPlayer.Level;
             var actionManager = ActionManager.Instance();
-            BaseHelper.Get(clientState.LocalPlayer, level, lastMove, JobGauges, targetManager, iconHook, self);
+            BaseHelper.Get(localPlayer, level, lastMove, JobGauges, targetManager, iconHook, self);
             //if (false)
             //try
             //{
@@ -466,7 +469,7 @@ namespace XIVComboPlugin
             // various combos
             if (hasFlag(CustomComboPreset.SageCombos))
             {
-                SGEHelper sgeHelper = SGEHelper.Get(JobGauges.Get<SGEGauge>(), clientState.LocalPlayer.StatusList, level, lastMove);
+                SGEHelper sgeHelper = SGEHelper.Get(JobGauges.Get<SGEGauge>(), localPlayer.StatusList, level, lastMove);
                 if (sgeHelper.applies(actionID))
                 {
                     return sgeHelper.move(actionID);
@@ -838,7 +841,7 @@ namespace XIVComboPlugin
         private bool SearchBuffArray(ushort needle)
         {
             if (needle == 0) return false;
-            var buffs = clientState.LocalPlayer.StatusList;
+            var buffs = objectTable.LocalPlayer!.StatusList;
             for (var i = 0; i < buffs.Length; i++)
                 if (buffs[i].StatusId == needle)
                     return true;

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Dalamud.NET.Sdk/14.0.0">
+﻿<Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup Label="Target">
     <PlatformTarget>x64</PlatformTarget>
     <TargetFramework>net10.0-windows</TargetFramework>
@@ -31,7 +31,7 @@
     <BaseOutputPath>C:\GitHub\Zookins</BaseOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Update="DalamudPackager" Version="14.0.1" />
+    <PackageReference Update="DalamudPackager" Version="15.0.0" />
     <PackageReference Update="DotNet.ReproducibleBuilds" Version="1.2.39" />
   </ItemGroup>
 </Project>

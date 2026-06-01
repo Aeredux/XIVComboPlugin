@@ -23,6 +23,7 @@ namespace XIVComboPlugin
         [PluginService] internal static IDalamudPluginInterface PluginInterface { get; private set; } = null!;
         [PluginService] internal static ISigScanner SigScanner { get; private set; } = null!;
         [PluginService] internal static IClientState ClientState { get; private set; } = null!;
+        [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
         [PluginService] internal static IChatGui ChatGui{ get; private set; } = null!;
         [PluginService] internal static IJobGauges JobGauges { get; private set; } = null!;
         [PluginService] internal static IGameInteropProvider HookProvider{ get; private set; } = null!;
@@ -50,7 +51,7 @@ namespace XIVComboPlugin
                 Configuration.Version = 4;
             }
 
-            this.iconReplacer = new IconReplacer(SigScanner, ClientState, DataManager, this.Configuration, HookProvider, JobGauges, PluginLog, TargetManager);
+            this.iconReplacer = new IconReplacer(SigScanner, ClientState, ObjectTable, DataManager, this.Configuration, HookProvider, JobGauges, PluginLog, TargetManager);
 
             this.iconReplacer.Enable();
 

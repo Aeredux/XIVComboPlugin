@@ -51,15 +51,15 @@ namespace XIVComboTweaks.Configuration.Helpers
                         return BRD.ArmysPaeon;
                     return BRD.WanderersMinuet;
                 case BRD.MagesBallad:
-                    if (instance.brdGauge.Song == Song.Army)
+                    if (instance.brdGauge.Song == Song.ArmysPaeon)
                         return BRD.MagesBallad;
-                    if (instance.brdGauge.Song == Song.Wanderer)
+                    if (instance.brdGauge.Song == Song.WanderersMinuet)
                         return BRD.ArmysPaeon;
                     return BRD.WanderersMinuet;
                 case BRD.ArmysPaeon:
-                    if (instance.brdGauge.Song == Song.Wanderer)
+                    if (instance.brdGauge.Song == Song.WanderersMinuet)
                         return BRD.WanderersMinuet;
-                    if (instance.brdGauge.Song == Song.Mage)
+                    if (instance.brdGauge.Song == Song.MagesBallad)
                         return BRD.MagesBallad;
                     return BRD.ArmysPaeon;
                 // battle voice > raging strikes > battle voice
@@ -117,17 +117,17 @@ namespace XIVComboTweaks.Configuration.Helpers
 
         public static uint instantSingle()
         {
-            if (instance.brdGauge.Song == Dalamud.Game.ClientState.JobGauge.Enums.Song.Wanderer && instance.brdGauge.Repertoire == 3)
+            if (instance.brdGauge.Song == Dalamud.Game.ClientState.JobGauge.Enums.Song.WanderersMinuet && instance.brdGauge.Repertoire == 3)
                 return BRD.PitchPerfect;
             if (instance.level < 84 && Charges(BRD.Bloodletter) == 2 || instance.level >= 84 && Charges(BRD.Bloodletter) == 3 ||
-                Charges(BRD.Bloodletter) > 0 && instance.level >= 54 && instance.level < 84 && Ready(BRD.EmpyrealArrow) && instance.brdGauge.Song == Dalamud.Game.ClientState.JobGauge.Enums.Song.Mage ||
-                Charges(BRD.Bloodletter) > 1 && instance.level >= 84 && Ready(BRD.EmpyrealArrow) && instance.brdGauge.Song == Dalamud.Game.ClientState.JobGauge.Enums.Song.Mage)
+                Charges(BRD.Bloodletter) > 0 && instance.level >= 54 && instance.level < 84 && Ready(BRD.EmpyrealArrow) && instance.brdGauge.Song == Dalamud.Game.ClientState.JobGauge.Enums.Song.MagesBallad ||
+                Charges(BRD.Bloodletter) > 1 && instance.level >= 84 && Ready(BRD.EmpyrealArrow) && instance.brdGauge.Song == Dalamud.Game.ClientState.JobGauge.Enums.Song.MagesBallad)
                 return original(BRD.Bloodletter);
             if (instance.level >= 54 && Ready(BRD.EmpyrealArrow))
                 return BRD.EmpyrealArrow;
             if (instance.level >= 60 && Ready(BRD.Sidewinder))
                 return BRD.Sidewinder;
-            if (instance.level >= 52 && instance.brdGauge.Song == Dalamud.Game.ClientState.JobGauge.Enums.Song.Wanderer && Charges(BRD.Bloodletter) == 0 && instance.brdGauge.SongTimer < 5000)
+            if (instance.level >= 52 && instance.brdGauge.Song == Dalamud.Game.ClientState.JobGauge.Enums.Song.WanderersMinuet && Charges(BRD.Bloodletter) == 0 && instance.brdGauge.SongTimer < 5000)
                 return BRD.PitchPerfect;
             return original(BRD.Bloodletter);
         }
